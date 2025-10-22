@@ -99,25 +99,6 @@ const rule = {
       return false
     }
 
-    const isExported = (node) => {
-      // Direct export: export function foo() {}
-      if (node.type === 'FunctionDeclaration' && node.parent?.type === 'ExportNamedDeclaration') {
-        return true
-      }
-      
-      // Variable export: export const foo = () => {}
-      if (node.type === 'VariableDeclarator') {
-        const declaration = node.parent
-        const exportDeclaration = declaration?.parent
-        if (declaration?.type === 'VariableDeclaration' &&
-            exportDeclaration?.type === 'ExportNamedDeclaration') {
-          return true
-        }
-      }
-      
-      return false
-    }
-
     const reportIfTrivial = (fnNode, reportNode) => {
       if (isTrivialBody(fnNode)) {
         context.report({
