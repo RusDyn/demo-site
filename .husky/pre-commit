@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-commit checks..."
+
+# 1. Check for debugging code
+echo "🔍 Checking for debug code..."
+if grep -r "console\.\(log\|debug\|trace\)" src/ --exclude="*.test.ts"; then
+  echo "❌ Found console statements. Please remove them."
+  exit 1
+fi
+
+# 2. Check for TODO comments
+if grep -r "TODO\|FIXME\|XXX" src/; then
+  echo "⚠️  Found TODO comments. Consider addressing them."
+fi
+
+# 3. Run lint-staged
+npx lint-staged
+
+# 4. Verify no .only in tests
+if grep -r "\.only\|\.skip" "src/**/*.test.ts" 2>/dev/null; then
+  echo "❌ Found .only or .skip in tests"
+  exit 1
+fi
+
+echo "✅ All checks passed!"

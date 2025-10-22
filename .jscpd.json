@@ -1,0 +1,29 @@
+{
+  "path": ["src"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.next/**",
+    "**/coverage/**",
+    "**/__snapshots__/**",
+    "**/__tests__/**",
+    "**/*.gen.ts",
+    "**/*.generated.ts",
+    "**/*.d.ts",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/html/**",
+    "**/reports/**"
+  ],
+  "reporters": ["console", "html"],
+  "output": "reports/jscpd",
+  "absolute": true,
+  "gitignore": true,
+  "minTokens": 50,
+  "maxSize": "80kb",
+  "threshold": 5,
+  "format": ["typescript", "javascript"],
+  "blame": false,
+  "silent": false
+}
