@@ -1,35 +1,42 @@
 {
   "name": "next-portfolio",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.0.0",
     "npm": ">=8.0.0"
   },
   "scripts": {
-    "dev": "node scripts/next-runner.mjs dev",
-    "build": "node scripts/next-runner.mjs build",
-    "start": "node scripts/next-runner.mjs start",
-    "lint": "eslint . --max-warnings=0",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:strict": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "lint:staged": "lint-staged",
-    "duplicates": "jscpd --config .jscpd.json",
     "prepare": "husky install"
   },
-  "dependencies": {},
+  "dependencies": {
+    "next": "latest",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
-    "eslint-plugin-security": "^3.0.0",
-    "eslint-plugin-sonarjs": "^1.0.0",
-    "eslint-plugin-unicorn": "^55.0.0",
+    "@eslint/js": "^9.16.0",
+    "@next/eslint-plugin-next": "latest",
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "latest",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-sonarjs": "^1.0.4",
+    "eslint-plugin-unicorn": "^56.0.0",
     "husky": "^8.0.0",
     "jscpd": "^4.0.0",
     "lint-staged": "^15.5.0",
-    "typescript": "^5.3.0",
-    "typescript-eslint": "^8.0.0"
+    "typescript": "latest",
+    "typescript-eslint": "^8.14.0"
   }
 }
