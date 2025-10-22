@@ -1,8 +1,9 @@
 import Image from 'next/image'
+import type { ReactElement } from 'react'
 
 import styles from './page.module.css'
 
-export default function Home() {
+export default function Home(): ReactElement {
   return (
     <main className={styles.main}>
       <div className={styles.description}>
