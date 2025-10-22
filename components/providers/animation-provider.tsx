@@ -6,14 +6,28 @@ import type { ComponentProps, ReactElement, ReactNode } from "react";
 
 type LazyMotionFeatures = NonNullable<ComponentProps<typeof LazyMotion>["features"]>;
 
+interface FramerMotionModule {
+  domAnimation: LazyFeatureBundle;
+}
+
+function isFramerMotionModule(value: unknown): value is FramerMotionModule {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as { domAnimation?: unknown };
+
+  return typeof candidate.domAnimation === "object" || typeof candidate.domAnimation === "function";
+}
+
 const loadAnimationFeatures: LazyMotionFeatures = async () => {
-  const motionModule = await (import("framer-motion") as Promise<
-    typeof import("framer-motion")
-  >);
+  const motionModule: unknown = await import("framer-motion");
 
-  const features: LazyFeatureBundle = motionModule.domAnimation;
+  if (!isFramerMotionModule(motionModule)) {
+    throw new Error("Failed to load framer-motion animation features");
+  }
 
-  return features;
+  return motionModule.domAnimation;
 };
 
 interface AnimationProviderProps {
