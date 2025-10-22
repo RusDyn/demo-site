@@ -30,7 +30,7 @@
     "@typescript-eslint/parser": "^8.14.0",
     "eslint": "^9.16.0",
     "eslint-config-next": "latest",
-    "eslint-plugin-security": "^3.0.2",
+    "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^1.0.4",
     "eslint-plugin-unicorn": "^56.0.0",
     "husky": "^8.0.0",
