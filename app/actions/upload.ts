@@ -26,10 +26,25 @@ const uploadOptionsSchema = z.object({
   expiresIn: z.number().optional(),
 });
 
+function hasValidSignedUrl(
+  data: unknown,
+): data is {
+  signedURL: string;
+} {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "signedURL" in data &&
+    typeof (data as { signedURL?: unknown }).signedURL === "string"
+  );
+}
+
 export type UploadOptions = z.infer<typeof uploadOptionsSchema>;
 
+type StorageClient = Pick<ReturnType<typeof getSupabaseServiceRoleClient>, "storage">;
+
 async function ensureBucketExists(
-  client: ReturnType<typeof getSupabaseServiceRoleClient>,
+  client: StorageClient,
   bucket: string,
 ): Promise<void> {
   const existing = await client.storage.getBucket(bucket);
@@ -53,7 +68,11 @@ export type UploadResult =
       error: string;
     };
 
-export async function uploadToSupabase(file: File, options?: UploadOptions): Promise<UploadResult> {
+export async function uploadToSupabase(
+  file: File,
+  options?: UploadOptions,
+  clientOverride?: StorageClient,
+): Promise<UploadResult> {
   const fileCheck = fileSchema.safeParse(file);
   if (!fileCheck.success) {
     return { success: false, error: fileCheck.error.errors[0]?.message ?? "Invalid file" } as const;
@@ -81,7 +100,7 @@ export async function uploadToSupabase(file: File, options?: UploadOptions): Pro
     return { success: false, error: "Storage bucket is not configured." } as const;
   }
 
-  const client = getSupabaseServiceRoleClient();
+  const client = clientOverride ?? getSupabaseServiceRoleClient();
 
   await ensureBucketExists(client, bucket);
 
@@ -110,14 +129,13 @@ export async function uploadToSupabase(file: File, options?: UploadOptions): Pro
     return { success: false, error: signedUrlError.message } as const;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!signedUrlData || typeof signedUrlData.signedUrl !== "string" || signedUrlData.signedUrl.length === 0) {
+  if (!hasValidSignedUrl(signedUrlData) || signedUrlData.signedURL.length === 0) {
     return { success: false, error: "Failed to generate a signed URL." } as const;
   }
 
   return {
     success: true,
     path: objectPath,
-    signedUrl: signedUrlData.signedUrl,
+    signedUrl: signedUrlData.signedURL,
   } as const;
 }
