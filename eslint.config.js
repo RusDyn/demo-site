@@ -29,6 +29,7 @@ export default [
       'prisma/migrations/',
       'prisma/dev.db',
       'prisma/dev.db-journal',
+      'next-env.d.ts',
       'supabase/.branches',
       'supabase/.temp',
     ],
