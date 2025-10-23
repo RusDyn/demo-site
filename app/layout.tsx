@@ -4,9 +4,9 @@ import type { ReactElement, ReactNode } from "react";
 import "@fontsource-variable/inter/index.css";
 import "./globals.css";
 
-import { AppProvider } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
 import { createHydrationState } from "@/lib/trpc/hydration";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Supabase Auth Starter",
@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: { children: ReactNode }):
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen bg-background font-sans antialiased")}>
-        <AppProvider state={hydrationState}>{children}</AppProvider>
+        <Providers state={hydrationState}>{children}</Providers>
       </body>
     </html>
   );

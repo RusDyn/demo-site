@@ -14,9 +14,7 @@ const prismaErrorMessage =
 function createFallbackClient(error: unknown): PrismaClient {
   const cause = error instanceof Error ? error : new Error("Unknown Prisma client error");
   const failure = new Error(prismaErrorMessage, { cause });
-  const asyncFailure: () => Promise<never> = async () => {
-    throw failure;
-  };
+  const asyncFailure = (): Promise<never> => Promise.reject(failure);
 
   const modelHandler: ProxyHandler<Record<string, unknown>> = {
     get(_modelTarget, method) {

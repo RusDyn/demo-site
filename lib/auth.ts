@@ -6,6 +6,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
 
 function requireEnv(name: string): string {
+  // Accessing environment variables by name is required for configuration lookup.
+  // eslint-disable-next-line security/detect-object-injection
   const value = process.env[name];
 
   if (!value) {
@@ -31,8 +33,11 @@ export const authConfig = {
     }),
   ],
   callbacks: {
-    session: async ({ session, user }): Promise<Session> => {
+    session: ({ session, user }): Session => {
+      // The session object is controlled by NextAuth and exposes known properties.
+       
       session.user.id = user.id;
+       
       session.user.role = user.role;
       return session;
     },
