@@ -1,13 +1,15 @@
 "use client";
 
 import { LazyMotion } from "framer-motion";
-import type { LazyFeatureBundle } from "framer-motion";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 
-type LazyMotionFeatures = NonNullable<ComponentProps<typeof LazyMotion>["features"]>;
+type AnimationFeatureBundle = Record<string, unknown>;
+type LazyAnimationFeatureBundle = () => Promise<AnimationFeatureBundle>;
+type LazyMotionFeatures = AnimationFeatureBundle | LazyAnimationFeatureBundle;
+type LazyMotionFeaturesProp = () => Promise<LazyMotionFeatures>;
 
 interface FramerMotionModule {
-  domAnimation: LazyFeatureBundle;
+  domAnimation: LazyMotionFeatures;
 }
 
 function isFramerMotionModule(value: unknown): value is FramerMotionModule {
@@ -17,10 +19,14 @@ function isFramerMotionModule(value: unknown): value is FramerMotionModule {
 
   const candidate = value as { domAnimation?: unknown };
 
-  return typeof candidate.domAnimation === "object" || typeof candidate.domAnimation === "function";
+  if (typeof candidate.domAnimation === "function") {
+    return true;
+  }
+
+  return typeof candidate.domAnimation === "object" && candidate.domAnimation !== null;
 }
 
-const loadAnimationFeatures: LazyMotionFeatures = async () => {
+const loadAnimationFeatures: ComponentProps<typeof LazyMotion>["features"] = async () => {
   const motionModule: unknown = await import("framer-motion");
 
   if (!isFramerMotionModule(motionModule)) {
@@ -35,5 +41,7 @@ interface AnimationProviderProps {
 }
 
 export function AnimationProvider({ children }: AnimationProviderProps): ReactElement {
-  return <LazyMotion features={loadAnimationFeatures}>{children}</LazyMotion>;
+  return (
+    <LazyMotion features={loadAnimationFeatures as LazyMotionFeaturesProp}>{children}</LazyMotion>
+  );
 }

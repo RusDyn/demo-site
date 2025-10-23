@@ -1,9 +1,10 @@
 import autoprefixer from "autoprefixer";
-import tailwindcss from "@tailwindcss/postcss";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 const config = {
   plugins: {
-    "@tailwindcss/postcss": { optimize: false },
+    "@tailwindcss/postcss": { optimize: isProduction },
     autoprefixer: {},
   },
 };
