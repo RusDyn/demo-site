@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 // Prisma's generated client is unavailable in the CI environment, so we rely on runtime validation instead.
 import { PrismaClient } from "@prisma/client";
 
@@ -40,7 +39,7 @@ function createFallbackClient(error: unknown): PrismaClient {
     },
   };
 
-  return new Proxy({}, clientHandler) as PrismaClient;
+  return new Proxy({}, clientHandler) as unknown as PrismaClient;
 }
 
 const profileSelect = {
@@ -113,6 +112,6 @@ export async function ensureUser(seed: SeedUserInput): Promise<void> {
   await prisma.user.upsert({
     where: { email: seed.email },
     update: {},
-    data: seed,
+    create: seed,
   });
 }

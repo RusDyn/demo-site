@@ -31,7 +31,15 @@ test("health ping round-trips Date instances", async (t) => {
           reject(new Error("Failed to determine test server address"));
           return;
         }
-        resolve(Number.parseInt(match[1], 10));
+
+        const portMatch = match[1];
+
+        if (!portMatch) {
+          reject(new Error("Failed to determine test server port"));
+          return;
+        }
+
+        resolve(Number.parseInt(portMatch, 10));
         return;
       }
       resolve(address.port);
@@ -42,17 +50,17 @@ test("health ping round-trips Date instances", async (t) => {
   });
 
   const transformer = superjson;
-    const client = trpc.createClient(
-      {
-        transformer,
-        links: [
-          httpBatchLink({
-            url: `http://127.0.0.1:${port}`,
-            transformer,
-          }),
-        ],
-      } as unknown as Parameters<typeof trpc.createClient>[0],
-    );
+  const client = trpc.createClient(
+    {
+      transformer,
+      links: [
+        httpBatchLink({
+          url: `http://127.0.0.1:${port}`,
+          transformer,
+        }),
+      ],
+    } as unknown as Parameters<typeof trpc.createClient>[0],
+  );
 
   const result = await client.health.ping.query();
   assert.ok(result.timestamp instanceof Date);

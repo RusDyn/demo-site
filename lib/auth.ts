@@ -10,11 +10,19 @@ function requireEnv(name: string): string {
   // eslint-disable-next-line security/detect-object-injection
   const value = process.env[name];
 
-  if (!value) {
+  if (value) {
+    return value;
+  }
+
+  const shouldEnforce = process.env.VERCEL === "1" || process.env.CI === "true";
+
+  if (shouldEnforce) {
     throw new Error(`Missing environment variable: ${name}`);
   }
 
-  return value;
+  const fallback = `placeholder-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  console.warn(`Missing environment variable: ${name}. Using fallback value for local build.`);
+  return fallback;
 }
 
 export const authConfig = {

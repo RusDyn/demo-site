@@ -1,20 +1,42 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import type { StorageClient } from "@/app/actions/upload";
+
 const expectedSignedUrl = "https://example.com/signed";
 
 test("returns a signed URL when Supabase succeeds", async () => {
-  const mockClient = {
+  const mockClient: StorageClient = {
     storage: {
-      getBucket: () => Promise.resolve({ data: {} }),
-      createBucket: () => Promise.resolve({}),
-      from: () => ({
-        upload: () => Promise.resolve({ data: {}, error: null }),
-        createSignedUrl: () =>
-          Promise.resolve({ data: { signedURL: expectedSignedUrl }, error: null }),
-      }),
+      getBucket() {
+        return Promise.resolve(
+          { data: {} } as Awaited<ReturnType<StorageClient["storage"]["getBucket"]>>,
+        );
+      },
+      createBucket() {
+        return Promise.resolve(
+          {} as Awaited<ReturnType<StorageClient["storage"]["createBucket"]>>,
+        );
+      },
+      from() {
+        return {
+          upload() {
+            return Promise.resolve(
+              { data: {}, error: null } as Awaited<ReturnType<ReturnType<StorageClient["storage"]["from"]>["upload"]>>,
+            );
+          },
+          createSignedUrl() {
+            return Promise.resolve(
+              {
+                data: { signedUrl: expectedSignedUrl, signedURL: expectedSignedUrl },
+                error: null,
+              } as Awaited<ReturnType<ReturnType<StorageClient["storage"]["from"]>["createSignedUrl"]>>,
+            );
+          },
+        } satisfies ReturnType<StorageClient["storage"]["from"]>;
+      },
     },
-  } as const;
+  };
 
   const { uploadToSupabase } = await import("../app/actions/upload");
 
