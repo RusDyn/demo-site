@@ -19,20 +19,25 @@ export function TrpcProvider({ children, state }: { children: ReactNode; state?:
         },
       }),
   );
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" || (opts.direction === "down" && opts.result instanceof Error),
-        }),
-        httpBatchLink({
-          url: "/api/trpc",
-          transformer: superjson,
-        }),
-      ],
-    }),
-  );
+  const [trpcClient] = useState(() => {
+    const transformer = superjson;
+
+    return trpc.createClient(
+      {
+        transformer,
+        links: [
+          loggerLink({
+            enabled: (opts) =>
+              process.env.NODE_ENV === "development" || (opts.direction === "down" && opts.result instanceof Error),
+          }),
+          httpBatchLink({
+            url: "/api/trpc",
+            transformer,
+          }),
+        ],
+      } as unknown as Parameters<typeof trpc.createClient>[0],
+    );
+  });
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
