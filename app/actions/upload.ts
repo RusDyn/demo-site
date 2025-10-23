@@ -41,7 +41,17 @@ function hasValidSignedUrl(
 
 export type UploadOptions = z.infer<typeof uploadOptionsSchema>;
 
-type StorageClient = Pick<ReturnType<typeof getSupabaseServiceRoleClient>, "storage">;
+type SupabaseServiceClient = ReturnType<typeof getSupabaseServiceRoleClient>;
+
+export interface StorageClient {
+  storage: {
+    getBucket: SupabaseServiceClient["storage"]["getBucket"];
+    createBucket: SupabaseServiceClient["storage"]["createBucket"];
+    from: (
+      bucket: Parameters<SupabaseServiceClient["storage"]["from"]>[0],
+    ) => Pick<ReturnType<SupabaseServiceClient["storage"]["from"]>, "upload" | "createSignedUrl">;
+  };
+}
 
 async function ensureBucketExists(
   client: StorageClient,

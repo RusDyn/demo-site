@@ -34,5 +34,8 @@ supabase/functions/.env
 coverage/
 reports/
 
+# TypeScript incremental build info
+tsconfig.tsbuildinfo
+
 # OS files
 .DS_Store
