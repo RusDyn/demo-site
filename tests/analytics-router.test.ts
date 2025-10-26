@@ -42,7 +42,8 @@ test("analytics.topEvents returns PostHog top events", async () => {
   assert.deepEqual(result, events);
   assert.strictEqual(fetchTopEvents.mock.calls.length, 1);
   const [firstCall] = fetchTopEvents.mock.calls;
-  const [options] = firstCall?.arguments ?? [];
+  const args = (firstCall?.arguments ?? []) as unknown[];
+  const options = args[0];
   assert.deepEqual(options, { limit: 25, dateFrom: undefined, dateTo: undefined });
 });
 
