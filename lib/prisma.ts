@@ -245,6 +245,61 @@ export async function getCaseStudyForUser(
   return normalizeCaseStudy(record as CaseStudyWithRelations);
 }
 
+export interface CaseStudyAssetOwnership {
+  asset: CaseStudyAsset;
+  caseStudyId: string | null;
+  heroCaseStudyId: string | null;
+}
+
+function assetPathBelongsToUser(path: string, userId: string): boolean {
+  return path.startsWith(`case-studies/${userId}`);
+}
+
+export async function getCaseStudyAssetForUser(
+  userId: string,
+  assetId: string,
+  client: PrismaClient = prisma,
+): Promise<CaseStudyAssetOwnership | null> {
+  const record = await client.asset.findUnique({
+    where: { id: assetId },
+    include: {
+      caseStudy: {
+        select: {
+          id: true,
+          authorId: true,
+          heroAssetId: true,
+        },
+      },
+    },
+  });
+
+  if (!record) {
+    return null;
+  }
+
+  if (record.caseStudy) {
+    if (record.caseStudy.authorId !== userId) {
+      return null;
+    }
+
+    return {
+      asset: mapAsset(record),
+      caseStudyId: record.caseStudy.id,
+      heroCaseStudyId: record.caseStudy.heroAssetId === record.id ? record.caseStudy.id : null,
+    };
+  }
+
+  if (!assetPathBelongsToUser(record.path, userId)) {
+    return null;
+  }
+
+  return {
+    asset: mapAsset(record),
+    caseStudyId: null,
+    heroCaseStudyId: null,
+  };
+}
+
 async function ensureOwnsCaseStudy(
   client: PrismaClient | Prisma.TransactionClient,
   userId: string,
@@ -448,5 +503,61 @@ export async function deleteCaseStudyForUser(
       id: caseStudyId,
       authorId: userId,
     },
+  });
+}
+
+export interface DeleteCaseStudyAssetResult {
+  asset: CaseStudyAsset;
+  caseStudyId: string | null;
+  wasHero: boolean;
+}
+
+export async function deleteCaseStudyAssetForUser(
+  userId: string,
+  assetId: string,
+  client: PrismaClient = prisma,
+): Promise<DeleteCaseStudyAssetResult> {
+  return client.$transaction(async (tx) => {
+    const record = await tx.asset.findUnique({
+      where: { id: assetId },
+      include: {
+        caseStudy: {
+          select: {
+            id: true,
+            authorId: true,
+            heroAssetId: true,
+          },
+        },
+      },
+    });
+
+    if (!record) {
+      throw new Error("Asset not found");
+    }
+
+    if (record.caseStudy) {
+      if (record.caseStudy.authorId !== userId) {
+        throw new Error("Asset not found");
+      }
+
+      if (record.caseStudy.heroAssetId === record.id) {
+        await tx.caseStudy.update({
+          where: { id: record.caseStudy.id },
+          data: { heroAssetId: null },
+        });
+      }
+    } else if (!assetPathBelongsToUser(record.path, userId)) {
+      throw new Error("Asset not found");
+    }
+
+    await tx.asset.delete({
+      where: { id: assetId },
+    });
+
+    return {
+      asset: mapAsset(record),
+      caseStudyId: record.caseStudyId ?? null,
+      wasHero: record.caseStudy?.heroAssetId === record.id,
+    };
   });
 }

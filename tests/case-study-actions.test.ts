@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 
-import type { CaseStudyDetail } from "@/lib/validators/case-study";
+import type { CaseStudyAsset, CaseStudyDetail } from "@/lib/validators/case-study";
 
 const detail: CaseStudyDetail = {
   id: "cs-1",
@@ -32,6 +32,10 @@ const prismaDefaults = {
     Promise.reject(new Error("deleteCaseStudyForUser mock not configured")),
   createCaseStudyAsset: (..._args: unknown[]) =>
     Promise.reject(new Error("createCaseStudyAsset mock not configured")),
+  deleteCaseStudyAssetForUser: (..._args: unknown[]) =>
+    Promise.reject(new Error("deleteCaseStudyAssetForUser mock not configured")),
+  getCaseStudyAssetForUser: (..._args: unknown[]) =>
+    Promise.reject(new Error("getCaseStudyAssetForUser mock not configured")),
 } satisfies Record<string, (...args: unknown[]) => Promise<unknown>>;
 
 let importId = 0;
@@ -63,6 +67,49 @@ function setupRevalidateMock(callback: (path: string) => void): void {
 async function importCaseStudyActions() {
   importId += 1;
   return import(`@/app/actions/case-study?test=${importId}`);
+}
+
+const asset: CaseStudyAsset = {
+  id: "asset-1",
+  caseStudyId: "cs-1",
+  bucket: "test-bucket",
+  path: "case-studies/user-123/file.png",
+  name: "file.png",
+  mimeType: "image/png",
+  size: 2048,
+  createdAt: new Date("2024-01-01T00:00:00Z"),
+  updatedAt: new Date("2024-01-01T00:00:00Z"),
+};
+
+function setupSupabaseMock(options?: {
+  removeImplementation?: () => Promise<{ error: { message: string } | null }>;
+  createSignedUrlImplementation?: () => Promise<{
+    data: unknown;
+    error: { message: string } | null;
+  }>;
+}) {
+  const removeMock = mock.fn(
+    options?.removeImplementation ?? (() => Promise.resolve({ error: null })),
+  );
+  const createSignedUrlMock = mock.fn(
+    options?.createSignedUrlImplementation ?? (() =>
+      Promise.resolve({ data: { signedURL: "https://example.com/signed" }, error: null })),
+  );
+
+  mock.module("@/lib/supabase", {
+    namedExports: {
+      getSupabaseServiceRoleClient: () => ({
+        storage: {
+          from: () => ({
+            remove: removeMock,
+            createSignedUrl: createSignedUrlMock,
+          }),
+        },
+      }),
+    },
+  });
+
+  return { removeMock, createSignedUrlMock };
 }
 
 test("saveCaseStudyAction validates session and normalizes input", async () => {
@@ -192,4 +239,147 @@ test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
   } finally {
     process.env.SUPABASE_STORAGE_BUCKET = originalBucket;
   }
+});
+
+test("deleteCaseStudyAssetAction deletes Supabase object and revalidates", async () => {
+  const revalidated: string[] = [];
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  const { removeMock } = setupSupabaseMock();
+  let deleteCalled = false;
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () =>
+      Promise.resolve({ asset, caseStudyId: "cs-1", heroCaseStudyId: null }),
+    deleteCaseStudyAssetForUser: (...args: unknown[]) => {
+      deleteCalled = true;
+      assert.deepEqual(args, ["user-123", "asset-1"]);
+      return Promise.resolve({ asset, caseStudyId: "cs-1", wasHero: false });
+    },
+  });
+  setupRevalidateMock((path) => {
+    revalidated.push(path);
+  });
+
+  const { deleteCaseStudyAssetAction } = await importCaseStudyActions();
+  const result = await deleteCaseStudyAssetAction({ assetId: "asset-1" });
+
+  assert.ok(deleteCalled);
+  assert.strictEqual(removeMock.mock.calls.length, 1);
+  assert.deepEqual(result, {
+    success: true,
+    assetId: "asset-1",
+    caseStudyId: "cs-1",
+    heroCleared: false,
+  });
+  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+});
+
+test("deleteCaseStudyAssetAction requires authentication", async () => {
+  setupAuthMock(null);
+  setupSupabaseMock();
+  setupPrismaMock({});
+
+  const { deleteCaseStudyAssetAction } = await importCaseStudyActions();
+  const result = await deleteCaseStudyAssetAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: false, error: "Unauthorized" });
+});
+
+test("deleteCaseStudyAssetAction returns error when asset missing", async () => {
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupSupabaseMock();
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () => Promise.resolve(null),
+  });
+
+  const { deleteCaseStudyAssetAction } = await importCaseStudyActions();
+  const result = await deleteCaseStudyAssetAction({ assetId: "missing" });
+  assert.deepEqual(result, { success: false, error: "Asset not found" });
+});
+
+test("deleteCaseStudyAssetAction surfaces Supabase removal failures", async () => {
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupSupabaseMock({
+    removeImplementation: () => Promise.resolve({ error: { message: "Removal failed" } }),
+  });
+  let deleteCalled = false;
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () =>
+      Promise.resolve({ asset, caseStudyId: "cs-1", heroCaseStudyId: null }),
+    deleteCaseStudyAssetForUser: () => {
+      deleteCalled = true;
+      return Promise.resolve({ asset, caseStudyId: "cs-1", wasHero: false });
+    },
+  });
+
+  const { deleteCaseStudyAssetAction } = await importCaseStudyActions();
+  const result = await deleteCaseStudyAssetAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: false, error: "Removal failed" });
+  assert.ok(!deleteCalled);
+});
+
+test("fetchCaseStudyAssetUrlAction returns signed URL", async () => {
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  const { createSignedUrlMock } = setupSupabaseMock();
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () =>
+      Promise.resolve({ asset, caseStudyId: "cs-1", heroCaseStudyId: null }),
+  });
+
+  const { fetchCaseStudyAssetUrlAction } = await importCaseStudyActions();
+  const result = await fetchCaseStudyAssetUrlAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: true, signedUrl: "https://example.com/signed" });
+  assert.strictEqual(createSignedUrlMock.mock.calls.length, 1);
+});
+
+test("fetchCaseStudyAssetUrlAction requires authentication", async () => {
+  setupAuthMock(null);
+  setupSupabaseMock();
+  setupPrismaMock({});
+
+  const { fetchCaseStudyAssetUrlAction } = await importCaseStudyActions();
+  const result = await fetchCaseStudyAssetUrlAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: false, error: "Unauthorized" });
+});
+
+test("fetchCaseStudyAssetUrlAction handles Supabase errors", async () => {
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupSupabaseMock({
+    createSignedUrlImplementation: () =>
+      Promise.resolve({ data: null, error: { message: "Failed" } }),
+  });
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () =>
+      Promise.resolve({ asset, caseStudyId: "cs-1", heroCaseStudyId: null }),
+  });
+
+  const { fetchCaseStudyAssetUrlAction } = await importCaseStudyActions();
+  const result = await fetchCaseStudyAssetUrlAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: false, error: "Failed" });
+});
+
+test("fetchCaseStudyAssetUrlAction handles invalid Supabase responses", async () => {
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupSupabaseMock({
+    createSignedUrlImplementation: () =>
+      Promise.resolve({ data: { signedURL: "" }, error: null }),
+  });
+  setupPrismaMock({
+    getCaseStudyAssetForUser: () =>
+      Promise.resolve({ asset, caseStudyId: "cs-1", heroCaseStudyId: null }),
+  });
+
+  const { fetchCaseStudyAssetUrlAction } = await importCaseStudyActions();
+  const result = await fetchCaseStudyAssetUrlAction({ assetId: "asset-1" });
+  assert.deepEqual(result, { success: false, error: "Failed to generate a signed URL" });
 });

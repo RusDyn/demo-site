@@ -6,7 +6,9 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import {
   createCaseStudyAsset,
+  deleteCaseStudyAssetForUser,
   deleteCaseStudyForUser,
+  getCaseStudyAssetForUser,
   saveCaseStudyForUser,
 } from "@/lib/prisma";
 import {
@@ -15,6 +17,7 @@ import {
   type CaseStudyDetail,
   type CaseStudyMutationInput,
 } from "@/lib/validators/case-study";
+import { getSupabaseServiceRoleClient } from "@/lib/supabase";
 
 import { uploadToSupabase } from "./upload";
 
@@ -197,6 +200,149 @@ export async function uploadCaseStudyAssetAction(
     } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to store asset metadata";
+    return { success: false, error: message } as const;
+  }
+}
+
+const assetIdSchema = z.object({
+  assetId: z.string().min(1, "Asset identifier is required"),
+});
+
+function hasValidSignedUrl(
+  data: unknown,
+): data is {
+  signedURL: string;
+} {
+  if (typeof data !== "object" || data === null || !("signedURL" in data)) {
+    return false;
+  }
+
+  const signedURL = (data as { signedURL?: unknown }).signedURL;
+
+  return typeof signedURL === "string" && signedURL.length > 0;
+}
+
+export type DeleteCaseStudyAssetActionResult =
+  | {
+      success: true;
+      assetId: string;
+      caseStudyId: string | null;
+      heroCleared: boolean;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export async function deleteCaseStudyAssetAction(
+  input: z.infer<typeof assetIdSchema>,
+): Promise<DeleteCaseStudyAssetActionResult> {
+  const session = await auth();
+
+  if (!session?.user) {
+    return { success: false, error: "Unauthorized" } as const;
+  }
+
+  const parsed = assetIdSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    } as const;
+  }
+
+  const owned = await getCaseStudyAssetForUser(session.user.id, parsed.data.assetId);
+
+  if (!owned) {
+    return { success: false, error: "Asset not found" } as const;
+  }
+
+  try {
+    const client = getSupabaseServiceRoleClient();
+    const { error: removeError } = await client.storage
+      .from(owned.asset.bucket)
+      .remove([owned.asset.path]);
+
+    if (removeError) {
+      return { success: false, error: removeError.message } as const;
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to delete asset";
+    return { success: false, error: message } as const;
+  }
+
+  try {
+    const { caseStudyId, wasHero } = await deleteCaseStudyAssetForUser(
+      session.user.id,
+      parsed.data.assetId,
+    );
+
+    await revalidateCaseStudyPaths(caseStudyId ?? undefined);
+
+    return {
+      success: true,
+      assetId: parsed.data.assetId,
+      caseStudyId,
+      heroCleared: wasHero,
+    } as const;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to delete asset";
+    return { success: false, error: message } as const;
+  }
+}
+
+export type FetchCaseStudyAssetUrlResult =
+  | {
+      success: true;
+      signedUrl: string;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export async function fetchCaseStudyAssetUrlAction(
+  input: z.infer<typeof assetIdSchema>,
+): Promise<FetchCaseStudyAssetUrlResult> {
+  const session = await auth();
+
+  if (!session?.user) {
+    return { success: false, error: "Unauthorized" } as const;
+  }
+
+  const parsed = assetIdSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Invalid input",
+    } as const;
+  }
+
+  const owned = await getCaseStudyAssetForUser(session.user.id, parsed.data.assetId);
+
+  if (!owned) {
+    return { success: false, error: "Asset not found" } as const;
+  }
+
+  try {
+    const client = getSupabaseServiceRoleClient();
+    const { data, error } = await client.storage
+      .from(owned.asset.bucket)
+      .createSignedUrl(owned.asset.path, 120);
+
+    if (error) {
+      return { success: false, error: error.message } as const;
+    }
+
+    if (!hasValidSignedUrl(data)) {
+      return { success: false, error: "Failed to generate a signed URL" } as const;
+    }
+
+    return { success: true, signedUrl: data.signedURL } as const;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to generate a signed URL";
     return { success: false, error: message } as const;
   }
 }
