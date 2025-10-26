@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { ProfileForm } from "@/components/profile/profile-form";
+import { CaseStudyEditor } from "@/components/case-studies/case-study-editor";
 import { HealthStatus } from "@/components/health-status";
 import { auth, signIn, signOut } from "@/lib/auth";
 
@@ -89,13 +90,16 @@ export default async function Home(): Promise<ReactElement> {
       </section>
 
       {session?.user ? (
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-foreground">Profile</h2>
-          <ProfileForm />
+        <section className="space-y-6">
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-foreground">Profile</h2>
+            <ProfileForm />
+          </div>
+          <CaseStudyEditor />
         </section>
       ) : (
         <section className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
-          Sign in to manage your profile and try the optimistic tRPC workflow.
+          Sign in to manage your profile, try the optimistic tRPC workflow, and experiment with the case study editor.
         </section>
       )}
     </main>
