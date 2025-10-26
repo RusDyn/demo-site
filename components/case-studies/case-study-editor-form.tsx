@@ -14,6 +14,8 @@ import {
 } from "react";
 
 import {
+  deleteCaseStudyAssetAction,
+  fetchCaseStudyAssetUrlAction,
   saveCaseStudyAction,
   uploadCaseStudyAssetAction,
 } from "@/app/actions/case-study";
@@ -115,12 +117,14 @@ export function CaseStudyForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [assetActionError, setAssetActionError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [heroPreviewUrl, setHeroPreviewUrl] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [optimisticSummary, setOptimisticSummary] = useOptimistic(summary, (_, next: string) => next);
   const [currentId, setCurrentId] = useState<string | null>(caseStudy?.id ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [removingAssetId, setRemovingAssetId] = useState<string | null>(null);
   const draftHydratedRef = useRef(false);
 
   useEffect(() => {
@@ -152,6 +156,7 @@ export function CaseStudyForm({
       })),
     );
     setHeroPreviewUrl(null);
+    setAssetActionError(null);
   }, [caseStudy, currentId, setOptimisticSummary]);
 
   useEffect(() => {
@@ -368,6 +373,82 @@ export function CaseStudyForm({
     }
   };
 
+  useEffect(() => {
+    if (!heroAssetId) {
+      setHeroPreviewUrl(null);
+      return;
+    }
+
+    if (!assets.some((asset) => asset.id === heroAssetId)) {
+      setHeroPreviewUrl(null);
+      return;
+    }
+
+    let isActive = true;
+
+    void fetchCaseStudyAssetUrlAction({ assetId: heroAssetId })
+      .then((response) => {
+        if (!isActive) {
+          return;
+        }
+
+        if (response.success) {
+          setHeroPreviewUrl(response.signedUrl);
+        } else if (!isUploading) {
+          setHeroPreviewUrl(null);
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setHeroPreviewUrl(null);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [assets, heroAssetId, isUploading]);
+
+  const handleRemoveAsset = (assetId: string) => {
+    setAssetActionError(null);
+    setRemovingAssetId(assetId);
+
+    void deleteCaseStudyAssetAction({ assetId })
+      .then(async (result) => {
+        if (!result.success) {
+          setAssetActionError(result.error);
+          return;
+        }
+
+        setAssets((previous) => {
+          const updated = previous.filter((asset) => asset.id !== assetId);
+          if (heroAssetId === assetId) {
+            const nextHeroId = updated[0]?.id ?? null;
+            setHeroAssetId(nextHeroId);
+            if (!nextHeroId) {
+              setHeroPreviewUrl(null);
+            }
+          }
+          return updated;
+        });
+
+        await utils.caseStudy.list.invalidate();
+
+        const targetId = result.caseStudyId ?? currentId;
+        if (targetId) {
+          await utils.caseStudy.byId.invalidate({ id: targetId });
+        }
+      })
+      .catch((removalError: unknown) => {
+        setAssetActionError(
+          removalError instanceof Error ? removalError.message : "Failed to remove asset",
+        );
+      })
+      .finally(() => {
+        setRemovingAssetId((previous) => (previous === assetId ? null : previous));
+      });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
@@ -501,6 +582,7 @@ export function CaseStudyForm({
               </label>
             </div>
             {uploadError ? <p className="text-xs text-destructive">{uploadError}</p> : null}
+            {assetActionError ? <p className="text-xs text-destructive">{assetActionError}</p> : null}
             {isUploading ? <p className="text-xs text-muted-foreground">Uploading file…</p> : null}
             {heroPreviewUrl ? (
               <Image
@@ -537,12 +619,34 @@ export function CaseStudyForm({
                   ))}
                 </select>
                 <ul className="space-y-1 text-xs text-muted-foreground">
-                  {assets.map((asset) => (
-                    <li key={asset.id} className="flex items-center justify-between rounded border border-border px-2 py-1">
-                      <span>{asset.name}</span>
-                      <span>{Math.round(asset.size / 1024)} KB</span>
-                    </li>
-                  ))}
+                  {assets.map((asset) => {
+                    const isRemoving = removingAssetId === asset.id;
+                    return (
+                      <li
+                        key={asset.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded border border-border px-2 py-1"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-foreground">{asset.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {Math.round(asset.size / 1024)} KB
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!isRemoving) {
+                              handleRemoveAsset(asset.id);
+                            }
+                          }}
+                          className="text-xs font-medium text-destructive transition hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={isRemoving || isFormDisabled}
+                        >
+                          {isRemoving ? "Removing…" : "Remove"}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
