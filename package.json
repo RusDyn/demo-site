@@ -20,7 +20,7 @@
     "prisma:migrate": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --import=tsx/esm",
+    "test": "node --test --experimental-test-module-mocks --import=tsx/esm",
     "check": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
