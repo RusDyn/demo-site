@@ -17,6 +17,12 @@ import {
   saveCaseStudyAction,
   uploadCaseStudyAssetAction,
 } from "@/app/actions/case-study";
+import {
+  clearCaseStudyDraft,
+  loadCaseStudyDraft,
+  mergeDraftSections,
+  type CaseStudyDraftSectionState,
+} from "@/lib/case-studies/draft-storage";
 import { trpc, useCaseStudyByIdQuery } from "@/lib/trpc/react";
 import {
   caseStudyDetailSchema,
@@ -65,12 +71,7 @@ export function CaseStudyEditorShell({
   );
 }
 
-interface SectionState {
-  id?: string;
-  title: string;
-  content: string;
-  position: number;
-}
+type SectionState = CaseStudyDraftSectionState;
 
 interface CaseStudyFormProps {
   caseStudy: CaseStudyDetail | null;
@@ -120,6 +121,7 @@ export function CaseStudyForm({
   const [optimisticSummary, setOptimisticSummary] = useOptimistic(summary, (_, next: string) => next);
   const [currentId, setCurrentId] = useState<string | null>(caseStudy?.id ?? null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const draftHydratedRef = useRef(false);
 
   useEffect(() => {
     if (!caseStudy) {
@@ -151,6 +153,42 @@ export function CaseStudyForm({
     );
     setHeroPreviewUrl(null);
   }, [caseStudy, currentId, setOptimisticSummary]);
+
+  useEffect(() => {
+    if (caseStudy !== null) {
+      draftHydratedRef.current = true;
+      return;
+    }
+
+    if (draftHydratedRef.current) {
+      return;
+    }
+
+    const draft = loadCaseStudyDraft();
+    if (!draft) {
+      draftHydratedRef.current = true;
+      return;
+    }
+
+    setTitle((previous) => (previous.length > 0 ? previous : draft.title));
+    setAudience((previous) => (previous.length > 0 ? previous : draft.audience));
+    setHeadline((previous) => (previous.length > 0 ? previous : draft.headline));
+    setSummary((previous) => {
+      if (previous.length > 0) {
+        setOptimisticSummary(previous);
+        return previous;
+      }
+
+      setOptimisticSummary(draft.summary);
+      return draft.summary;
+    });
+    setBackground((previous) => (previous.length > 0 ? previous : draft.background));
+    setResults((previous) => (previous.length > 0 ? previous : draft.results));
+    setSections((previous) => mergeDraftSections(previous, draft.sections));
+
+    draftHydratedRef.current = true;
+    clearCaseStudyDraft();
+  }, [caseStudy, setOptimisticSummary]);
 
   useEffect(() => {
     if (slugTouched) {

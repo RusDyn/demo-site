@@ -1,6 +1,14 @@
 "use client";
 
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import type { ReactElement } from "react";
 
 import { generateCaseStudyContentAction } from "@/app/actions/ai";
@@ -10,13 +18,17 @@ import type {
   AiOutlineResponse,
   AiSummaryResponse,
 } from "@/lib/validators/ai";
+import {
+  loadCaseStudyDraft,
+  saveCaseStudyDraft,
+  type CaseStudyDraftData,
+  type CaseStudyDraftSection,
+} from "@/lib/case-studies/draft-storage";
 
-interface OutlineSectionDisplay {
-  title: string;
-  description: string;
-}
+type OutlineSectionDisplay = CaseStudyDraftSection;
 
 export function CaseStudyEditor(): ReactElement {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [audience, setAudience] = useState("");
   const [background, setBackground] = useState("");
@@ -28,6 +40,9 @@ export function CaseStudyEditor(): ReactElement {
   const [optimisticSummary, setOptimisticSummary] = useOptimistic(summary, (_, next: string) => next);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isSummaryPending, startSummaryTransition] = useTransition();
+  const hasHydratedFromStorage = useRef(false);
+  const latestDraftRef = useRef<CaseStudyDraftData | null>(null);
+  const skipNextSave = useRef(false);
 
   const titleId = "case-study-title";
   const audienceId = "case-study-audience";
@@ -48,8 +63,68 @@ export function CaseStudyEditor(): ReactElement {
     return segments.join("\n\n");
   }, [background, results]);
 
+  useEffect(() => {
+    const stored = loadCaseStudyDraft();
+    if (stored) {
+      setTitle(stored.title);
+      setAudience(stored.audience);
+      setBackground(stored.background);
+      setResults(stored.results);
+      setHeadline(stored.headline);
+      setSummary(stored.summary);
+      setOptimisticSummary(stored.summary);
+      setOutlineSections(stored.sections);
+      latestDraftRef.current = stored;
+      skipNextSave.current = true;
+    }
+
+    hasHydratedFromStorage.current = true;
+  }, [setOptimisticSummary]);
+
+  useEffect(() => {
+    if (!hasHydratedFromStorage.current) {
+      return;
+    }
+
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
+    }
+
+    const snapshot: CaseStudyDraftData = {
+      title,
+      audience,
+      headline,
+      summary,
+      background,
+      results,
+      sections: outlineSections,
+    };
+
+    latestDraftRef.current = snapshot;
+    const hasContent =
+      snapshot.title.trim().length > 0 ||
+      snapshot.audience.trim().length > 0 ||
+      snapshot.headline.trim().length > 0 ||
+      snapshot.summary.trim().length > 0 ||
+      snapshot.background.trim().length > 0 ||
+      snapshot.results.trim().length > 0 ||
+      snapshot.sections.length > 0;
+
+    if (!hasContent) {
+      return;
+    }
+
+    saveCaseStudyDraft(snapshot);
+  }, [audience, background, headline, outlineSections, results, summary, title]);
+
   const handleOutlineAccept = (outline: AiOutlineResponse) => {
-    setOutlineSections(outline.sections);
+    setOutlineSections(
+      outline.sections.map((section) => ({
+        title: section.title,
+        content: section.description,
+      })),
+    );
   };
 
   const handleSummaryAccept = (value: AiSummaryResponse) => {
@@ -253,7 +328,7 @@ export function CaseStudyEditor(): ReactElement {
                 {outlineSections.map((section, index) => (
                   <li key={`saved-outline-${index}`} className="rounded-md border border-border bg-muted/30 p-3">
                     <p className="font-medium text-foreground">{section.title}</p>
-                    <p>{section.description}</p>
+                    <p>{section.content}</p>
                   </li>
                 ))}
               </ol>
@@ -280,6 +355,34 @@ export function CaseStudyEditor(): ReactElement {
       </div>
 
       <AiSummaryTool source={combinedContext} onAccept={handleSummaryAccept} />
+
+      <div className="flex flex-col gap-3 rounded-md border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <p className="flex-1">
+          Happy with this outline? Save it as a draft and continue polishing it in the case study dashboard.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            const snapshot =
+              latestDraftRef.current ??
+              ({
+                title,
+                audience,
+                headline,
+                summary,
+                background,
+                results,
+                sections: outlineSections,
+              } satisfies CaseStudyDraftData);
+
+            saveCaseStudyDraft(snapshot);
+            router.push("/case-studies/new");
+          }}
+          className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+        >
+          Continue in dashboard
+        </button>
+      </div>
     </section>
   );
 }
