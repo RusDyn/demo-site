@@ -26,3 +26,7 @@ export function getOpenAIClient(): OpenAI {
 
   return cachedClient;
 }
+
+export function __setOpenAIClientForTesting(client: OpenAI | null): void {
+  cachedClient = client;
+}
