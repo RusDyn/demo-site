@@ -252,7 +252,9 @@ export interface CaseStudyAssetOwnership {
 }
 
 function assetPathBelongsToUser(path: string, userId: string): boolean {
-  return path.startsWith(`case-studies/${userId}`);
+  const prefix = `case-studies/${userId}/`;
+
+  return path === prefix.slice(0, -1) || path.startsWith(prefix);
 }
 
 export async function getCaseStudyAssetForUser(
