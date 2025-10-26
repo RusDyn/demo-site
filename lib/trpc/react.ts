@@ -4,6 +4,25 @@ import type { AppRouter } from "@/server/api/root";
 
 export const trpc = createTRPCReact<AppRouter>();
 
+export function useAnalyticsTopEventsQuery(
+  input?: Parameters<typeof trpc.analytics.topEvents.useQuery>[0],
+  options?: Parameters<typeof trpc.analytics.topEvents.useQuery>[1],
+): ReturnType<typeof trpc.analytics.topEvents.useQuery> {
+  return trpc.analytics.topEvents.useQuery(input, {
+    retry: 1,
+    ...options,
+  });
+}
+
+export function useAnalyticsCohortsQuery(
+  options?: Parameters<typeof trpc.analytics.cohorts.useQuery>[1],
+): ReturnType<typeof trpc.analytics.cohorts.useQuery> {
+  return trpc.analytics.cohorts.useQuery(undefined, {
+    retry: 1,
+    ...options,
+  });
+}
+
 export function useAiGenerateMutation(
   options?: Parameters<typeof trpc.ai.generate.useMutation>[0],
 ): ReturnType<typeof trpc.ai.generate.useMutation> {

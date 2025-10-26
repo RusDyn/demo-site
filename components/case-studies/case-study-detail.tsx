@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type ReactElement } from "react";
 
 import { deleteCaseStudyAction } from "@/app/actions/case-study";
 import { trpc, useCaseStudyByIdQuery } from "@/lib/trpc/react";
 import { caseStudyDetailSchema } from "@/lib/validators/case-study";
+import { trackCaseStudyViewed } from "@/lib/analytics/events";
 
 interface CaseStudyDetailProps {
   id: string;
@@ -22,6 +23,8 @@ export function CaseStudyDetail({ id }: CaseStudyDetailProps): ReactElement {
     refetchOnWindowFocus: false,
   });
 
+  const parsed = caseStudyQuery.data ? caseStudyDetailSchema.safeParse(caseStudyQuery.data) : undefined;
+  const caseStudy = parsed?.success ? parsed.data : null;
   const content = useMemo(() => {
     if (caseStudyQuery.isLoading) {
       return <p className="text-sm text-muted-foreground">Loading case study…</p>;
@@ -35,15 +38,9 @@ export function CaseStudyDetail({ id }: CaseStudyDetailProps): ReactElement {
       );
     }
 
-    const parsed = caseStudyQuery.data
-      ? caseStudyDetailSchema.safeParse(caseStudyQuery.data)
-      : undefined;
-
     if (parsed && !parsed.success) {
       return <p className="text-sm text-destructive">Failed to load the case study.</p>;
     }
-
-    const caseStudy = parsed?.success ? parsed.data : null;
 
     if (!caseStudy) {
       return <p className="text-sm text-muted-foreground">Case study not found.</p>;
@@ -97,7 +94,26 @@ export function CaseStudyDetail({ id }: CaseStudyDetailProps): ReactElement {
         </div>
       </div>
     );
-  }, [caseStudyQuery.data, caseStudyQuery.error, caseStudyQuery.isLoading]);
+  }, [caseStudy, caseStudyQuery.error, caseStudyQuery.isLoading, parsed]);
+
+  const lastTrackedIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!caseStudy) {
+      return;
+    }
+
+    if (lastTrackedIdRef.current === caseStudy.id) {
+      return;
+    }
+
+    trackCaseStudyViewed({
+      id: caseStudy.id,
+      title: caseStudy.title,
+      audience: caseStudy.audience ?? null,
+    });
+
+    lastTrackedIdRef.current = caseStudy.id;
+  }, [caseStudy]);
 
   const handleDelete = () => {
     setDeleteError(null);
