@@ -13,6 +13,11 @@ import type {
   AiResponseOfType,
   AiStreamEvent,
 } from "@/lib/validators/ai";
+import {
+  trackAiGenerationCompleted,
+  trackAiGenerationErrored,
+  trackAiGenerationRequested,
+} from "@/lib/analytics/events";
 
 interface UseAiGenerationState<TType extends AiPromptType> {
   status: "idle" | "loading" | "success" | "error";
@@ -43,14 +48,26 @@ export function useAiGeneration<TType extends AiPromptType>(type: TType): UseAiG
         setStatus("error");
         setError(event.message);
         setRequest(null);
+        trackAiGenerationErrored(type, event.message);
       } else {
+        const result = event.result as AiResponseOfType<TType>;
         setStatus("success");
-        setResult(event.result as AiResponseOfType<TType>);
+        setResult(result);
         setSnapshot(null);
         setRequest(null);
+        const serializedResult = JSON.stringify(result);
+        const metadata: Record<string, unknown> = { resultSize: serializedResult.length };
+        if ("variations" in result && Array.isArray(result.variations)) {
+          metadata.variationCount = result.variations.length;
+        } else if ("sections" in result && Array.isArray(result.sections)) {
+          metadata.sectionCount = result.sections.length;
+        } else if ("summary" in result && typeof result.summary === "string") {
+          metadata.summaryLength = result.summary.length;
+        }
+        trackAiGenerationCompleted(type, metadata);
       }
     },
-    [],
+    [type],
   );
 
   const enabledInput = useMemo(() => request ?? undefined, [request]);
@@ -100,9 +117,10 @@ export function useAiGeneration<TType extends AiPromptType>(type: TType): UseAiG
   const generate = useCallback(
     (input: AiPromptOfType<TType>) => {
       lastRequestRef.current = input;
+      trackAiGenerationRequested(type);
       setRequest(input);
     },
-    [],
+    [type],
   );
 
   const retry = useCallback(() => {

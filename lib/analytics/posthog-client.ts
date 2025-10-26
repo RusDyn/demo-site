@@ -27,6 +27,10 @@ export function initPosthog(consentGranted: boolean): void {
     return;
   }
 
+  if (typeof client.opt_in_capturing === "function") {
+    client.opt_in_capturing();
+  }
+
   if (isInitialized) {
     return;
   }

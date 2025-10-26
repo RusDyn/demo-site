@@ -5,6 +5,7 @@ import type { DehydratedState } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import { AnalyticsConsentBanner } from "@/components/analytics/consent-banner";
 import { AppProvider } from "@/components/providers/app-provider";
 import { hasClientAnalyticsConsent } from "@/lib/analytics/consent";
 import { initPosthog } from "@/lib/analytics/posthog-client";
@@ -24,6 +25,7 @@ export function Providers({ children, state }: { children: ReactNode; state?: De
       <Analytics />
       <SpeedInsights />
       <PosthogInitializer />
+      <AnalyticsConsentBanner />
     </AppProvider>
   );
 }
