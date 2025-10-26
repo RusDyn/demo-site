@@ -96,6 +96,14 @@ export default async function Home(): Promise<ReactElement> {
             <ProfileForm />
           </div>
           <CaseStudyEditor />
+          <div className="flex justify-end">
+            <Link
+              href="/case-studies"
+              className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
+            >
+              Open case study dashboard
+            </Link>
+          </div>
         </section>
       ) : (
         <section className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">

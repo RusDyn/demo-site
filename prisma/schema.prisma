@@ -48,6 +48,60 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  caseStudies CaseStudy[]
+}
+
+model CaseStudy {
+  id           String   @id @default(cuid())
+  authorId     String
+  slug         String
+  title        String
+  audience     String?
+  summary      String?
+  headline     String?
+  background   String?
+  results      String?
+  heroAssetId  String? @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author    User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  heroAsset Asset? @relation("CaseStudyHeroAsset", fields: [heroAssetId], references: [id])
+  sections  CaseStudySection[]
+  assets    Asset[]            @relation("CaseStudyAssets")
+
+  @@unique([authorId, slug])
+}
+
+model CaseStudySection {
+  id          String   @id @default(cuid())
+  caseStudyId String
+  title       String
+  content     String
+  position    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  caseStudy CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+
+  @@index([caseStudyId, position])
+}
+
+model Asset {
+  id          String   @id @default(cuid())
+  caseStudyId String?
+  bucket      String
+  path        String
+  name        String
+  mimeType    String
+  size        Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  caseStudy CaseStudy? @relation("CaseStudyAssets", fields: [caseStudyId], references: [id], onDelete: Cascade)
+  heroFor   CaseStudy? @relation("CaseStudyHeroAsset")
+
+  @@index([caseStudyId])
 }
 
 model VerificationToken {
