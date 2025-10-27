@@ -140,7 +140,13 @@ test("saveCaseStudyAction validates session and normalizes input", async () => {
   });
 
   assert.ok(result.success);
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/sample",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("saveCaseStudyAction returns unauthorized without session", async () => {
@@ -186,7 +192,13 @@ test("deleteCaseStudyAction calls repository and revalidates", async () => {
   const result = await deleteCaseStudyAction("cs-1");
   assert.deepEqual(result, { success: true });
   assert.strictEqual(deletedId, "cs-1");
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/[slug]",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
@@ -233,8 +245,10 @@ test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
     assert.strictEqual(result.signedUrl, "https://example.com/file.png");
     assert.deepEqual(revalidated, [
       "/case-studies",
-      "/case-studies/cs-1",
-      "/case-studies/cs-1/edit",
+      "/dashboard/case-studies",
+      "/case-studies/[slug]",
+      "/dashboard/case-studies/cs-1",
+      "/dashboard/case-studies/cs-1/edit",
     ]);
   } finally {
     process.env.SUPABASE_STORAGE_BUCKET = originalBucket;
@@ -272,7 +286,13 @@ test("deleteCaseStudyAssetAction deletes Supabase object and revalidates", async
     caseStudyId: "cs-1",
     heroCleared: false,
   });
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/[slug]",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("deleteCaseStudyAssetAction requires authentication", async () => {

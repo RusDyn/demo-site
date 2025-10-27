@@ -242,6 +242,22 @@ export async function listCaseStudiesForUser(
   );
 }
 
+export async function listPublicCaseStudies(client: PrismaClient = prisma): Promise<CaseStudySummary[]> {
+  const records = await client.caseStudy.findMany({
+    orderBy: {
+      updatedAt: "desc",
+    },
+    select: caseStudySummarySelect,
+  });
+
+  return caseStudySummarySchema.array().parse(
+    records.map((record) => ({
+      ...record,
+      summary: record.summary ?? null,
+    })),
+  );
+}
+
 export async function getCaseStudyForUser(
   userId: string,
   caseStudyId: string,
@@ -251,6 +267,25 @@ export async function getCaseStudyForUser(
     where: {
       id: caseStudyId,
       authorId: userId,
+    },
+    include: caseStudyDetailInclude,
+  });
+
+  if (!record) {
+    return null;
+  }
+
+  return normalizeCaseStudy(record as CaseStudyWithRelations);
+}
+
+export async function getPublicCaseStudyBySlug(
+  slug: string,
+  client: PrismaClient = prisma,
+): Promise<CaseStudyDetail | null> {
+  const record = await client.caseStudy.findFirst({
+    where: { slug },
+    orderBy: {
+      updatedAt: "desc",
     },
     include: caseStudyDetailInclude,
   });

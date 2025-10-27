@@ -71,3 +71,25 @@ export function useCaseStudyDeleteMutation(
     ...options,
   });
 }
+
+export function usePublicCaseStudyListQuery(
+  options?: Parameters<typeof trpc.publicCaseStudy.list.useQuery>[1],
+): ReturnType<typeof trpc.publicCaseStudy.list.useQuery> {
+  return trpc.publicCaseStudy.list.useQuery(undefined, {
+    retry: 1,
+    ...options,
+  });
+}
+
+export function usePublicCaseStudyBySlugQuery(
+  slug: string,
+  options?: Parameters<typeof trpc.publicCaseStudy.bySlug.useQuery>[1],
+): ReturnType<typeof trpc.publicCaseStudy.bySlug.useQuery> {
+  return trpc.publicCaseStudy.bySlug.useQuery(
+    { slug },
+    {
+      retry: 1,
+      ...options,
+    },
+  );
+}

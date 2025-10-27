@@ -45,10 +45,26 @@ function normalizeMutationInput(input: CaseStudyMutationInput): CaseStudyMutatio
   };
 }
 
-async function revalidateCaseStudyPaths(caseStudyId?: string): Promise<void> {
-  const paths = ["/case-studies"];
+interface RevalidateCaseStudyOptions {
+  caseStudyId?: string | null;
+  slug?: string | null;
+}
+
+async function revalidateCaseStudyPaths({
+  caseStudyId,
+  slug,
+}: RevalidateCaseStudyOptions = {}): Promise<void> {
+  const paths = [
+    "/case-studies",
+    "/dashboard/case-studies",
+    slug ? `/case-studies/${slug}` : "/case-studies/[slug]",
+  ];
+
   if (caseStudyId) {
-    paths.push(`/case-studies/${caseStudyId}`, `/case-studies/${caseStudyId}/edit`);
+    paths.push(
+      `/dashboard/case-studies/${caseStudyId}`,
+      `/dashboard/case-studies/${caseStudyId}/edit`,
+    );
   }
 
   await Promise.all(
@@ -93,7 +109,7 @@ export async function saveCaseStudyAction(
 
   try {
     const caseStudy = await saveCaseStudyForUser(session.user.id, parsed.data);
-    await revalidateCaseStudyPaths(caseStudy.id);
+    await revalidateCaseStudyPaths({ caseStudyId: caseStudy.id, slug: caseStudy.slug });
     return { success: true, caseStudy } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to save case study";
@@ -121,7 +137,7 @@ export async function deleteCaseStudyAction(id: string): Promise<DeleteCaseStudy
 
   try {
     await deleteCaseStudyForUser(session.user.id, id);
-    await revalidateCaseStudyPaths(id);
+    await revalidateCaseStudyPaths({ caseStudyId: id });
     return { success: true } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to delete case study";
@@ -190,7 +206,7 @@ export async function uploadCaseStudyAssetAction(
     });
 
     if (parsed.data.caseStudyId) {
-      await revalidateCaseStudyPaths(parsed.data.caseStudyId);
+      await revalidateCaseStudyPaths({ caseStudyId: parsed.data.caseStudyId });
     }
 
     return {
@@ -278,7 +294,7 @@ export async function deleteCaseStudyAssetAction(
       parsed.data.assetId,
     );
 
-    await revalidateCaseStudyPaths(caseStudyId ?? undefined);
+    await revalidateCaseStudyPaths({ caseStudyId });
 
     return {
       success: true,

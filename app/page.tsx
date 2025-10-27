@@ -88,7 +88,7 @@ export default async function Home(): Promise<ReactElement> {
                     href="/case-studies"
                     className="inline-flex items-center justify-center rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
                   >
-                    Visit case studies
+                    Browse customer stories
                   </Link>
                 </div>
               ) : (
@@ -167,10 +167,10 @@ export default async function Home(): Promise<ReactElement> {
           <CaseStudyEditor />
           <div className="flex justify-end">
             <Link
-              href="/case-studies"
+              href="/dashboard/case-studies"
               className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
             >
-              Open case study dashboard
+              Open case study workspace
             </Link>
           </div>
         </DashboardHandOffSection>

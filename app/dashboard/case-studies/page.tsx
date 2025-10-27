@@ -12,7 +12,7 @@ export default function CaseStudiesPage(): ReactElement {
           <p className="text-sm text-muted-foreground">Keep your most impactful stories organized in one place.</p>
         </div>
         <Link
-          href="/case-studies/new"
+          href="/dashboard/case-studies/new"
           className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
         >
           New case study
