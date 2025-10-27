@@ -1,0 +1,33 @@
+<svg width="1400" height="900" viewBox="0 0 1400 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="900" rx="32" fill="url(#paint0_linear)" />
+  <g filter="url(#filter0_b)">
+    <rect x="64" y="88" width="1272" height="724" rx="28" fill="rgba(17, 24, 39, 0.82)" />
+    <rect x="64.5" y="88.5" width="1271" height="723" rx="27.5" stroke="rgba(255, 255, 255, 0.12)" />
+    <rect x="128" y="160" width="1144" height="96" rx="16" fill="rgba(59, 130, 246, 0.08)" />
+    <rect x="128" y="296" width="544" height="256" rx="20" fill="rgba(236, 72, 153, 0.08)" />
+    <rect x="704" y="296" width="568" height="256" rx="20" fill="rgba(14, 165, 233, 0.08)" />
+    <rect x="128" y="600" width="1144" height="152" rx="20" fill="rgba(148, 163, 184, 0.12)" />
+    <path d="M200 208H864" stroke="rgba(248, 250, 252, 0.72)" stroke-width="12" stroke-linecap="round" />
+    <path d="M200 352H624" stroke="rgba(248, 250, 252, 0.66)" stroke-width="10" stroke-linecap="round" />
+    <path d="M776 352H1184" stroke="rgba(248, 250, 252, 0.45)" stroke-width="10" stroke-linecap="round" />
+    <path d="M200 408H552" stroke="rgba(248, 250, 252, 0.55)" stroke-width="10" stroke-linecap="round" />
+    <path d="M200 464H520" stroke="rgba(248, 250, 252, 0.4)" stroke-width="10" stroke-linecap="round" />
+    <path d="M776 408H1120" stroke="rgba(248, 250, 252, 0.55)" stroke-width="10" stroke-linecap="round" />
+    <path d="M776 464H1088" stroke="rgba(248, 250, 252, 0.4)" stroke-width="10" stroke-linecap="round" />
+    <path d="M200 648H1160" stroke="rgba(248, 250, 252, 0.35)" stroke-width="12" stroke-linecap="round" />
+    <path d="M200 696H1000" stroke="rgba(248, 250, 252, 0.25)" stroke-width="12" stroke-linecap="round" />
+  </g>
+  <defs>
+    <filter id="filter0_b" x="24" y="48" width="1352" height="804" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feGaussianBlur in="BackgroundImage" stdDeviation="20" />
+      <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur" />
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur" result="shape" />
+    </filter>
+    <linearGradient id="paint0_linear" x1="1232" y1="44" x2="156" y2="868" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A" />
+      <stop offset="0.52" stop-color="#111827" />
+      <stop offset="1" stop-color="#1E293B" />
+    </linearGradient>
+  </defs>
+</svg>
