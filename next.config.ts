@@ -1,8 +1,23 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
+const supabaseStorageHostname = process.env.SUPABASE_URL
+  ? new URL(process.env.SUPABASE_URL).hostname
+  : undefined;
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: supabaseStorageHostname
+      ? [
+          {
+            protocol: "https",
+            hostname: supabaseStorageHostname,
+            pathname: "/storage/v1/object/**",
+          },
+        ]
+      : undefined,
+  },
 };
 
 export default withSentryConfig(nextConfig, {
