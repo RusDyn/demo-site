@@ -19,7 +19,7 @@ function ManagePreferencesLink({ consent }: ManagePreferencesProps): ReactElemen
   return (
     <div className="fixed bottom-4 right-4 z-40">
       <Link
-        href="/dashboard/settings"
+        href="/settings"
         className="inline-flex items-center rounded-md border border-input bg-background/95 px-3 py-1.5 text-sm font-medium text-foreground shadow-lg transition hover:bg-muted"
       >
         Manage preferences

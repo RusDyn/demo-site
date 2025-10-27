@@ -24,7 +24,7 @@ export default async function DashboardLayout({
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/dashboard/settings"
+            href="/settings"
             className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
           >
             Settings
