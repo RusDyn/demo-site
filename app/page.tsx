@@ -103,7 +103,7 @@ export default async function Home(): Promise<ReactElement> {
             <Image
               src="/illustrations/collaboration.svg"
               alt="Illustration of teammates collaborating around an interface"
-              loading="lazy"
+              priority
               width={512}
               height={512}
               className="h-auto w-full max-w-sm"
