@@ -33,11 +33,19 @@ A full-stack portfolio platform built with Next.js 15, Prisma, and Supabase. The
    npx prisma generate
    ```
    Use `npx prisma migrate dev --name <migration-name>` when iterating locally.
-5. **Configure OAuth providers**
+5. **Seed demo content (optional)**
+   - Drop illustrative SVGs or screenshots into `public/demo-assets/`. The seed script references the files defined in [`prisma/seed-data.ts`](./prisma/seed-data.ts).
+   - Ensure `SUPABASE_STORAGE_BUCKET` matches your Supabase storage bucket (defaults to `portfolio-assets`).
+   - Run the seed command to create the demo profile, assets, and case studies:
+     ```bash
+     npm run prisma db seed
+     ```
+   - Re-running the seed keeps the demo user in sync and refreshes the case study copy without duplicating records.
+6. **Configure OAuth providers**
    - **GitHub**: create an OAuth App with callback `https://<your-domain>/api/auth/callback/github` (use `http://localhost:3000` for dev). Store the client ID and secret in `.env.local`.
    - **Google**: create OAuth credentials with callback `https://<your-domain>/api/auth/callback/google`. Add authorized domains for local development and production.
    - Define `AUTH_SECRET` (or `NEXTAUTH_SECRET`) for session signing.
-6. **Wire external services**
+7. **Wire external services**
    - **OpenAI**: generate an API key and optional org/project IDs.
    - **Sentry**: create a project, copy the DSN, auth token, and optional trace/profile sampling rates.
    - **PostHog**: create a project, copy the client and server API keys, and configure the ingestion host when self-hosting.

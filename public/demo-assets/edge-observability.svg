@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-labelledby="title desc">
+  <title id="title">Edge observability illustration</title>
+  <desc id="desc">A network of connected nodes representing observability at the edge.</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#c2410c" />
+    </radialGradient>
+  </defs>
+  <rect width="320" height="200" rx="18" fill="#0f172a" />
+  <g stroke="#1e293b" stroke-width="2" opacity="0.6">
+    <circle cx="60" cy="60" r="46" fill="none" />
+    <circle cx="260" cy="64" r="40" fill="none" />
+    <circle cx="108" cy="144" r="34" fill="none" />
+    <circle cx="232" cy="150" r="50" fill="none" />
+  </g>
+  <g fill="#f8fafc" opacity="0.8">
+    <circle cx="80" cy="72" r="6" />
+    <circle cx="118" cy="56" r="5" />
+    <circle cx="180" cy="80" r="6" />
+    <circle cx="208" cy="120" r="7" />
+    <circle cx="150" cy="152" r="6" />
+    <circle cx="256" cy="132" r="6" />
+  </g>
+  <path d="M80 72 L118 56 L180 80 L208 120 L256 132" stroke="url(#glow)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85" />
+  <circle cx="118" cy="56" r="18" fill="url(#glow)" opacity="0.7" />
+  <circle cx="208" cy="120" r="22" fill="url(#glow)" opacity="0.7" />
+</svg>
