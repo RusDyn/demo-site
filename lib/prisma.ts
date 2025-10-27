@@ -6,7 +6,12 @@ import type {
   CaseStudySection as PrismaCaseStudySection,
 } from "@prisma/client";
 
-import { profileSchema, type ProfileSummary } from "@/lib/validators/profile";
+import {
+  profileSchema,
+  profileUpdateSchema,
+  type ProfileSummary,
+  type ProfileUpdateInput,
+} from "@/lib/validators/profile";
 import {
   caseStudyAssetCreateSchema,
   caseStudyAssetSchema,
@@ -112,10 +117,22 @@ export async function getProfileById(userId: string): Promise<ProfileSummary | n
   return profileSchema.parse(record);
 }
 
-export async function updateProfileName(userId: string, name: string): Promise<void> {
+type ProfileUpdateData = Pick<ProfileUpdateInput, "name" | "image">;
+
+export async function updateProfile(userId: string, data: ProfileUpdateData): Promise<void> {
+  const parsed = profileUpdateSchema.pick({ name: true, image: true }).parse(data);
+
+  const update: Prisma.UserUpdateInput = {
+    name: parsed.name,
+  };
+
+  if (typeof parsed.image !== "undefined") {
+    update.image = parsed.image;
+  }
+
   await prisma.user.update({
     where: { id: userId },
-    data: { name },
+    data: update,
   });
 }
 
