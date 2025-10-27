@@ -8,6 +8,7 @@ import { HealthStatus } from "@/components/health-status";
 import { auth, signIn, signOut } from "@/lib/auth";
 import { HeroAnimatedShell, HeroMotionItem } from "@/components/hero/animated-hero";
 import { FeatureGrid } from "@/components/landing/feature-grid";
+import { DemoHighlight } from "@/components/landing/demo-highlight";
 import { DashboardHandOffSection } from "@/components/dashboard/dashboard-hand-off-section";
 import { TechStackMarquee } from "@/components/landing/tech-stack-marquee";
 
@@ -111,6 +112,10 @@ export default async function Home(): Promise<ReactElement> {
           </HeroMotionItem>
         </div>
       </HeroAnimatedShell>
+
+      <section className="rounded-3xl border border-border bg-card/70 p-8 shadow-sm backdrop-blur">
+        <DemoHighlight />
+      </section>
 
       <FeatureGrid />
 
