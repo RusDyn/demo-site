@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
 import { Activity, Archive, Code2, ShieldCheck } from "lucide-react";
 import type { ReactElement } from "react";
 
@@ -15,29 +14,29 @@ const cardMotion = {
 interface FeatureItem {
   title: string;
   description: string;
-  icon: LucideIcon;
+  renderIcon: () => ReactElement;
 }
 
 const features: FeatureItem[] = [
   {
     title: "Robust authentication",
     description: "Link NextAuth v5 with Supabase Auth helpers to deliver secure, low-latency sign-ins by default.",
-    icon: ShieldCheck,
+    renderIcon: () => <ShieldCheck className="h-6 w-6" aria-hidden="true" />,
   },
   {
     title: "Typed data workflows",
     description: "Use Prisma and tRPC together so queries, mutations, and UI state stay consistent end-to-end.",
-    icon: Code2,
+    renderIcon: () => <Code2 className="h-6 w-6" aria-hidden="true" />,
   },
   {
     title: "Storage-ready foundation",
     description: "Wire Supabase Storage into your app without custom glue code or brittle upload flows.",
-    icon: Archive,
+    renderIcon: () => <Archive className="h-6 w-6" aria-hidden="true" />,
   },
   {
     title: "Operational insight",
     description: "Monitor key health metrics instantly thanks to PostHog analytics and built-in health checks.",
-    icon: Activity,
+    renderIcon: () => <Activity className="h-6 w-6" aria-hidden="true" />,
   },
 ];
 
@@ -49,7 +48,6 @@ export function FeatureGrid({ className }: FeatureGridProps): ReactElement {
   return (
     <section className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2", className)}>
       {features.map((feature, index) => {
-        const Icon = feature.icon;
         return (
           <motion.article
             key={feature.title}
@@ -60,7 +58,7 @@ export function FeatureGrid({ className }: FeatureGridProps): ReactElement {
             transition={{ duration: 0.4, delay: index * 0.08, ease: "easeOut" }}
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Icon className="h-6 w-6" aria-hidden="true" />
+              {feature.renderIcon()}
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
