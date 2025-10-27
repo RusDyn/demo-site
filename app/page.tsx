@@ -7,6 +7,7 @@ import { HealthStatus } from "@/components/health-status";
 import { auth, signIn, signOut } from "@/lib/auth";
 import { HeroAnimatedShell, HeroMotionItem } from "@/components/hero/animated-hero";
 import { FeatureGrid } from "@/components/landing/feature-grid";
+import { DashboardHandOffSection } from "@/components/dashboard/dashboard-hand-off-section";
 import { TechStackMarquee } from "@/components/landing/tech-stack-marquee";
 
 async function githubSignIn(): Promise<void> {
@@ -137,7 +138,7 @@ export default async function Home(): Promise<ReactElement> {
       </section>
 
       {session?.user ? (
-        <section className="space-y-6">
+        <DashboardHandOffSection>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-foreground">Profile</h2>
             <ProfileForm />
@@ -151,7 +152,7 @@ export default async function Home(): Promise<ReactElement> {
               Open case study dashboard
             </Link>
           </div>
-        </section>
+        </DashboardHandOffSection>
       ) : (
         <section className="rounded-lg border border-dashed border-border p-6 text-sm text-muted-foreground">
           Sign in to manage your profile, try the optimistic tRPC workflow, and experiment with the case study editor.
