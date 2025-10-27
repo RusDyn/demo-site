@@ -35,5 +35,21 @@ test("setClientAnalyticsConsent delegates to provided apply function", () => {
   setClientAnalyticsConsent("denied", { secure: false, apply: (value) => recorded.push(value) });
   assert.strictEqual(recorded.length, 1);
   const first = recorded.at(0);
-  assert.ok(first && first.startsWith(`${ANALYTICS_CONSENT_COOKIE}=`));
+  assert.ok(first?.startsWith(`${ANALYTICS_CONSENT_COOKIE}=`));
+});
+
+test("setClientAnalyticsConsent updates the cookie when toggled", () => {
+  let storedValue = "";
+  const apply = (value: string) => {
+    storedValue = value;
+  };
+
+  setClientAnalyticsConsent("granted", { secure: false, apply });
+  assert.ok(storedValue.includes(`${ANALYTICS_CONSENT_COOKIE}=granted`));
+
+  setClientAnalyticsConsent("denied", { secure: false, apply });
+  assert.ok(storedValue.includes(`${ANALYTICS_CONSENT_COOKIE}=denied`));
+
+  setClientAnalyticsConsent("granted", { secure: false, apply });
+  assert.ok(storedValue.includes(`${ANALYTICS_CONSENT_COOKIE}=granted`));
 });
