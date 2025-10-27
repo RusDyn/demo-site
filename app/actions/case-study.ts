@@ -9,6 +9,7 @@ import {
   deleteCaseStudyAssetForUser,
   deleteCaseStudyForUser,
   getCaseStudyAssetForUser,
+  getCaseStudyForUser,
   saveCaseStudyForUser,
 } from "@/lib/prisma";
 import {
@@ -48,27 +49,39 @@ function normalizeMutationInput(input: CaseStudyMutationInput): CaseStudyMutatio
 interface RevalidateCaseStudyOptions {
   caseStudyId?: string | null;
   slug?: string | null;
+  previousSlug?: string | null;
 }
 
 async function revalidateCaseStudyPaths({
   caseStudyId,
   slug,
+  previousSlug,
 }: RevalidateCaseStudyOptions = {}): Promise<void> {
-  const paths = [
+  const slugs = new Set(
+    [slug, previousSlug].filter(
+      (value): value is string => typeof value === "string" && value.length > 0,
+    ),
+  );
+
+  const paths = new Set<string>([
     "/case-studies",
     "/dashboard/case-studies",
-    slug ? `/case-studies/${slug}` : "/case-studies/[slug]",
-  ];
+    slugs.size === 0 ? "/case-studies/[slug]" : "",
+  ]);
+
+  for (const currentSlug of slugs) {
+    paths.add(`/case-studies/${currentSlug}`);
+  }
+
+  paths.delete("");
 
   if (caseStudyId) {
-    paths.push(
-      `/dashboard/case-studies/${caseStudyId}`,
-      `/dashboard/case-studies/${caseStudyId}/edit`,
-    );
+    paths.add(`/dashboard/case-studies/${caseStudyId}`);
+    paths.add(`/dashboard/case-studies/${caseStudyId}/edit`);
   }
 
   await Promise.all(
-    paths.map(
+    [...paths].map(
       (path) =>
         new Promise<void>((resolve) => {
           revalidatePath(path);
@@ -108,8 +121,20 @@ export async function saveCaseStudyAction(
   }
 
   try {
+    let previousSlug: string | null = null;
+
+    if (parsed.data.id) {
+      const existing = await getCaseStudyForUser(session.user.id, parsed.data.id);
+      previousSlug = existing?.slug ?? null;
+    }
+
     const caseStudy = await saveCaseStudyForUser(session.user.id, parsed.data);
-    await revalidateCaseStudyPaths({ caseStudyId: caseStudy.id, slug: caseStudy.slug });
+    await revalidateCaseStudyPaths({
+      caseStudyId: caseStudy.id,
+      slug: caseStudy.slug,
+      previousSlug:
+        previousSlug && previousSlug !== caseStudy.slug ? previousSlug : null,
+    });
     return { success: true, caseStudy } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to save case study";

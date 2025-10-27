@@ -36,6 +36,8 @@ const prismaDefaults = {
     Promise.reject(new Error("deleteCaseStudyAssetForUser mock not configured")),
   getCaseStudyAssetForUser: (..._args: unknown[]) =>
     Promise.reject(new Error("getCaseStudyAssetForUser mock not configured")),
+  getCaseStudyForUser: (..._args: unknown[]) =>
+    Promise.reject(new Error("getCaseStudyForUser mock not configured")),
 } satisfies Record<string, (...args: unknown[]) => Promise<unknown>>;
 
 let importId = 0;
@@ -144,6 +146,53 @@ test("saveCaseStudyAction validates session and normalizes input", async () => {
     "/case-studies",
     "/dashboard/case-studies",
     "/case-studies/sample",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
+});
+
+test("saveCaseStudyAction revalidates previous slug when renamed", async () => {
+  const revalidated: string[] = [];
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupPrismaMock({
+    getCaseStudyForUser: () =>
+      Promise.resolve({
+        ...detail,
+        slug: "original",
+      }),
+    saveCaseStudyForUser: () =>
+      Promise.resolve({
+        ...detail,
+        slug: "updated",
+      }),
+  });
+  setupRevalidateMock((path) => {
+    revalidated.push(path);
+  });
+
+  const { saveCaseStudyAction } = await importCaseStudyActions();
+  const result = await saveCaseStudyAction({
+    id: "cs-1",
+    slug: "updated",
+    title: "Sample",
+    audience: "Operators",
+    summary: "Summary",
+    headline: "Headline",
+    background: "Background",
+    results: "Results",
+    heroAssetId: null,
+    assetIds: [],
+    sections: [],
+  });
+
+  assert.ok(result.success);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/updated",
+    "/case-studies/original",
     "/dashboard/case-studies/cs-1",
     "/dashboard/case-studies/cs-1/edit",
   ]);
