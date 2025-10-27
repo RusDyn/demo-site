@@ -8,6 +8,7 @@ import { auth, signIn, signOut } from "@/lib/auth";
 import { HeroAnimatedShell, HeroMotionItem } from "@/components/hero/animated-hero";
 import { FeatureGrid } from "@/components/landing/feature-grid";
 import { DashboardHandOffSection } from "@/components/dashboard/dashboard-hand-off-section";
+import { TechStackMarquee } from "@/components/landing/tech-stack-marquee";
 
 async function githubSignIn(): Promise<void> {
   "use server";
@@ -96,6 +97,8 @@ export default async function Home(): Promise<ReactElement> {
       </HeroAnimatedShell>
 
       <FeatureGrid />
+
+      <TechStackMarquee />
 
       <section className="space-y-4 rounded-lg border border-border p-6 shadow-sm">
         <div className="flex items-center justify-between">
