@@ -1,22 +1,23 @@
 "use client";
 
+import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState, type ReactElement } from "react";
 
 import { cn } from "@/lib/utils";
 
 const techStackItems = [
-  "Next.js",
-  "React",
-  "TypeScript",
-  "Tailwind CSS",
-  "Prisma",
-  "tRPC",
-  "Supabase",
-  "NextAuth.js",
-  "TanStack Query",
-  "PostHog",
-];
+  { label: "Next.js", icon: "/icons/nextjs.svg" },
+  { label: "React", icon: "/icons/react.svg" },
+  { label: "TypeScript", icon: "/icons/typescript.svg" },
+  { label: "Tailwind CSS", icon: "/icons/tailwindcss.svg" },
+  { label: "Prisma", icon: "/icons/prisma.svg" },
+  { label: "tRPC", icon: "/icons/trpc.svg" },
+  { label: "Supabase", icon: "/icons/supabase.svg" },
+  { label: "NextAuth.js", icon: "/icons/nextauth.svg" },
+  { label: "TanStack Query", icon: "/icons/tanstack-query.svg" },
+  { label: "PostHog", icon: "/icons/posthog.svg" },
+] as const;
 
 const marqueeDuration = 28;
 
@@ -67,15 +68,26 @@ export function TechStackMarquee(): ReactElement {
       >
         {marqueeItems.map((item, index) => (
           <li
-            key={`${item}-${index}`}
+            key={`${item.label}-${index}`}
             aria-hidden={index >= techStackItems.length}
             className={cn(
               "inline-flex items-center gap-2 rounded-full bg-secondary/80 px-4 py-1 text-sm font-medium text-secondary-foreground",
               "shadow-sm ring-1 ring-inset ring-secondary/40 backdrop-blur",
             )}
           >
-            <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-            <span>{item}</span>
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-background/70 ring-1 ring-inset ring-secondary/50"
+            >
+              <Image
+                src={item.icon}
+                alt=""
+                width={20}
+                height={20}
+                className="h-4 w-4"
+              />
+            </span>
+            <span>{item.label}</span>
           </li>
         ))}
       </motion.ul>
