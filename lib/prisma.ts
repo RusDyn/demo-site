@@ -179,6 +179,44 @@ type CaseStudyWithRelations = PrismaCaseStudy & {
   heroAsset: PrismaAsset | null;
 };
 
+let publicCaseStudyAuthorWarningIssued = false;
+
+function getPublicCaseStudyAuthorIds(): string[] {
+  const raw = process.env.PUBLIC_CASE_STUDIES_AUTHOR_IDS;
+
+  if (!raw) {
+    return [];
+  }
+
+  return raw
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+}
+
+function buildPublicCaseStudyWhere(slug?: string): Prisma.CaseStudyWhereInput {
+  const authorIds = getPublicCaseStudyAuthorIds();
+
+  const where: Prisma.CaseStudyWhereInput = {
+    authorId: {
+      in: authorIds,
+    },
+  };
+
+  if (typeof slug === "string") {
+    where.slug = slug;
+  }
+
+  if (authorIds.length === 0 && !publicCaseStudyAuthorWarningIssued && process.env.NODE_ENV !== "test") {
+    publicCaseStudyAuthorWarningIssued = true;
+    console.warn(
+      "PUBLIC_CASE_STUDIES_AUTHOR_IDS is not configured. Public case study queries will return no results.",
+    );
+  }
+
+  return where;
+}
+
 function mapAsset(record: PrismaAsset): CaseStudyAsset {
   return caseStudyAssetSchema.parse({
     id: record.id,
@@ -244,6 +282,7 @@ export async function listCaseStudiesForUser(
 
 export async function listPublicCaseStudies(client: PrismaClient = prisma): Promise<CaseStudySummary[]> {
   const records = await client.caseStudy.findMany({
+    where: buildPublicCaseStudyWhere(),
     orderBy: {
       updatedAt: "desc",
     },
@@ -283,7 +322,7 @@ export async function getPublicCaseStudyBySlug(
   client: PrismaClient = prisma,
 ): Promise<CaseStudyDetail | null> {
   const record = await client.caseStudy.findFirst({
-    where: { slug },
+    where: buildPublicCaseStudyWhere(slug),
     orderBy: {
       updatedAt: "desc",
     },
