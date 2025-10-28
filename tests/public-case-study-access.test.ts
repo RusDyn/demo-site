@@ -71,6 +71,25 @@ test("getPublicCaseStudyBySlug scopes queries by slug and author ids", async () 
   });
 });
 
+test("getPublicCaseStudyBySlug fails closed when configuration is missing", async () => {
+  delete process.env.PUBLIC_CASE_STUDIES_AUTHOR_IDS;
+
+  const client = {
+    caseStudy: {
+      findFirst: () => {
+        throw new Error("findFirst should not be called");
+      },
+    },
+  } as unknown as PrismaClient;
+
+  const result = await getPublicCaseStudyBySlug(
+    encodePublicCaseStudySlug("user-42", "example-slug"),
+    client,
+  );
+
+  assert.equal(result, null);
+});
+
 test("public case study queries fail closed when configuration is missing", async () => {
   delete process.env.PUBLIC_CASE_STUDIES_AUTHOR_IDS;
 

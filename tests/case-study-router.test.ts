@@ -160,6 +160,7 @@ test("seeded case studies satisfy the summary schema", () => {
       caseStudySummarySchema.parse({
         id: "seed-id",
         slug: study.slug,
+        publicSlug: encodePublicCaseStudySlug("demo-user", study.slug),
         title: study.title,
         summary: study.summary,
         createdAt: new Date(),

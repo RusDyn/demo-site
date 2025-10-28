@@ -347,7 +347,7 @@ export async function getPublicCaseStudyBySlug(
 
   const authorIds = getConfiguredPublicCaseStudyAuthorIds();
 
-  if (authorIds.length > 0 && !authorIds.includes(decoded.authorId)) {
+  if (authorIds.length === 0 || !authorIds.includes(decoded.authorId)) {
     return null;
   }
 
