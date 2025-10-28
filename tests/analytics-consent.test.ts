@@ -53,3 +53,21 @@ test("setClientAnalyticsConsent updates the cookie when toggled", () => {
   setClientAnalyticsConsent("granted", { secure: false, apply });
   assert.ok(storedValue.includes(`${ANALYTICS_CONSENT_COOKIE}=granted`));
 });
+
+test("inline consent manager cycles continue to update the cookie", () => {
+  const recorded: string[] = [];
+  const apply = (value: string) => {
+    recorded.push(value);
+  };
+
+  const decisions: ("granted" | "denied")[] = ["granted", "denied", "granted", "denied", "granted"];
+  for (const decision of decisions) {
+    setClientAnalyticsConsent(decision, { secure: false, apply });
+  }
+
+  assert.strictEqual(recorded.length, decisions.length);
+  decisions.forEach((decision, index) => {
+    const value = recorded.at(index);
+    assert.ok(value?.includes(`${ANALYTICS_CONSENT_COOKIE}=${decision}`));
+  });
+});

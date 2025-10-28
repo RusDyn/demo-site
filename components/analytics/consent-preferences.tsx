@@ -1,17 +1,11 @@
 "use client";
 
-import { useCallback, useState, useTransition, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
-import { persistAnalyticsConsentAction } from "@/app/actions/analytics";
-import { type AnalyticsConsentDecision } from "@/lib/analytics/consent";
-import { initPosthog } from "@/lib/analytics/posthog-client";
-
-import { useAnalyticsConsentState } from "./use-analytics-consent-state";
+import { useAnalyticsConsentControls } from "./use-analytics-consent-controls";
 
 export function AnalyticsConsentPreferences(): ReactElement {
-  const { consent, setConsent } = useAnalyticsConsentState();
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { consent, error, isPending, applyDecision } = useAnalyticsConsentControls();
 
   const heading =
     consent === "granted"
@@ -25,32 +19,6 @@ export function AnalyticsConsentPreferences(): ReactElement {
       : consent === "denied"
         ? "No analytics events are being captured right now."
         : "Choose whether you'd like to help us improve by sharing anonymous usage trends.";
-
-  const applyDecision = useCallback(
-    (decision: AnalyticsConsentDecision) => {
-      setError(null);
-      startTransition(() => {
-        void persistAnalyticsConsentAction(decision)
-          .then((result) => {
-            if (!result.success) {
-              setError(result.error);
-              return;
-            }
-
-            initPosthog(decision === "granted");
-            setConsent(decision);
-          })
-          .catch((actionError: unknown) => {
-            const message =
-              actionError instanceof Error
-                ? actionError.message
-                : "We couldn\'t save your analytics preference.";
-            setError(message);
-          });
-      });
-    },
-    [setConsent],
-  );
 
   return (
     <section className="space-y-4 rounded-lg border border-border bg-background/95 p-6 shadow-sm">
