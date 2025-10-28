@@ -1,13 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { cache, type ReactElement } from "react";
+import type { ReactElement } from "react";
 
 import { CaseStudyDetailContent } from "@/components/case-studies/case-study-detail-content";
 import { createTRPCContext } from "@/server/api/context";
 import { appRouter } from "@/server/api/root";
 
-const loadCaseStudy = cache(async (slug: string) => {
+const loadCaseStudy = async (slug: string) => {
   const context = await createTRPCContext();
   const caller = appRouter.createCaller(context);
 
@@ -20,7 +20,7 @@ const loadCaseStudy = cache(async (slug: string) => {
 
     throw error;
   }
-});
+};
 
 export async function generateMetadata({
   params,
