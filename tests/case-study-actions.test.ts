@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 
 import type { CaseStudyAsset, CaseStudyDetail } from "@/lib/validators/case-study";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 
 const detail: CaseStudyDetail = {
   id: "cs-1",
   slug: "sample",
+  publicSlug: encodePublicCaseStudySlug("user-123", "sample"),
   title: "Sample",
   summary: "Summary",
   audience: "Operators",
@@ -145,7 +147,7 @@ test("saveCaseStudyAction validates session and normalizes input", async () => {
   assert.deepEqual(revalidated, [
     "/case-studies",
     "/dashboard/case-studies",
-    "/case-studies/sample",
+    `/case-studies/${detail.publicSlug}`,
     "/dashboard/case-studies/cs-1",
     "/dashboard/case-studies/cs-1/edit",
   ]);
@@ -161,11 +163,13 @@ test("saveCaseStudyAction revalidates previous slug when renamed", async () => {
       Promise.resolve({
         ...detail,
         slug: "original",
+        publicSlug: encodePublicCaseStudySlug("user-123", "original"),
       }),
     saveCaseStudyForUser: () =>
       Promise.resolve({
         ...detail,
         slug: "updated",
+        publicSlug: encodePublicCaseStudySlug("user-123", "updated"),
       }),
   });
   setupRevalidateMock((path) => {
@@ -191,8 +195,8 @@ test("saveCaseStudyAction revalidates previous slug when renamed", async () => {
   assert.deepEqual(revalidated, [
     "/case-studies",
     "/dashboard/case-studies",
-    "/case-studies/updated",
-    "/case-studies/original",
+    `/case-studies/${encodePublicCaseStudySlug("user-123", "updated")}`,
+    `/case-studies/${encodePublicCaseStudySlug("user-123", "original")}`,
     "/dashboard/case-studies/cs-1",
     "/dashboard/case-studies/cs-1/edit",
   ]);
@@ -244,7 +248,7 @@ test("deleteCaseStudyAction calls repository and revalidates", async () => {
   assert.deepEqual(revalidated, [
     "/case-studies",
     "/dashboard/case-studies",
-    "/case-studies/[slug]",
+    "/case-studies/[publicSlug]",
     "/dashboard/case-studies/cs-1",
     "/dashboard/case-studies/cs-1/edit",
   ]);
@@ -295,7 +299,7 @@ test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
     assert.deepEqual(revalidated, [
       "/case-studies",
       "/dashboard/case-studies",
-      "/case-studies/[slug]",
+      "/case-studies/[publicSlug]",
       "/dashboard/case-studies/cs-1",
       "/dashboard/case-studies/cs-1/edit",
     ]);
@@ -338,7 +342,7 @@ test("deleteCaseStudyAssetAction deletes Supabase object and revalidates", async
   assert.deepEqual(revalidated, [
     "/case-studies",
     "/dashboard/case-studies",
-    "/case-studies/[slug]",
+    "/case-studies/[publicSlug]",
     "/dashboard/case-studies/cs-1",
     "/dashboard/case-studies/cs-1/edit",
   ]);

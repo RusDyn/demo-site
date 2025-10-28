@@ -12,6 +12,7 @@ import {
   type ProfileSummary,
   type ProfileUpdateInput,
 } from "@/lib/validators/profile";
+import { encodePublicCaseStudySlug, decodePublicCaseStudySlug } from "@/lib/public-case-study";
 import {
   caseStudyAssetCreateSchema,
   caseStudyAssetSchema,
@@ -152,6 +153,7 @@ export async function ensureUser(seed: SeedUserInput): Promise<void> {
 
 const caseStudySummarySelect = {
   id: true,
+  authorId: true,
   slug: true,
   title: true,
   summary: true,
@@ -194,8 +196,21 @@ function getPublicCaseStudyAuthorIds(): string[] {
     .filter((value) => value.length > 0);
 }
 
-function buildPublicCaseStudyWhere(slug?: string): Prisma.CaseStudyWhereInput {
+function getConfiguredPublicCaseStudyAuthorIds(): string[] {
   const authorIds = getPublicCaseStudyAuthorIds();
+
+  if (authorIds.length === 0 && !publicCaseStudyAuthorWarningIssued && process.env.NODE_ENV !== "test") {
+    publicCaseStudyAuthorWarningIssued = true;
+    console.warn(
+      "PUBLIC_CASE_STUDIES_AUTHOR_IDS is not configured. Public case study queries will return no results.",
+    );
+  }
+
+  return authorIds;
+}
+
+function buildPublicCaseStudyWhere(slug?: string): Prisma.CaseStudyWhereInput {
+  const authorIds = getConfiguredPublicCaseStudyAuthorIds();
 
   const where: Prisma.CaseStudyWhereInput = {
     authorId: {
@@ -205,13 +220,6 @@ function buildPublicCaseStudyWhere(slug?: string): Prisma.CaseStudyWhereInput {
 
   if (typeof slug === "string") {
     where.slug = slug;
-  }
-
-  if (authorIds.length === 0 && !publicCaseStudyAuthorWarningIssued && process.env.NODE_ENV !== "test") {
-    publicCaseStudyAuthorWarningIssued = true;
-    console.warn(
-      "PUBLIC_CASE_STUDIES_AUTHOR_IDS is not configured. Public case study queries will return no results.",
-    );
   }
 
   return where;
@@ -235,6 +243,7 @@ function normalizeCaseStudy(record: CaseStudyWithRelations): CaseStudyDetail {
   const base = {
     id: record.id,
     slug: record.slug,
+    publicSlug: encodePublicCaseStudySlug(record.authorId, record.slug),
     title: record.title,
     audience: record.audience ?? null,
     summary: record.summary ?? null,
@@ -273,8 +282,9 @@ export async function listCaseStudiesForUser(
   });
 
   return caseStudySummarySchema.array().parse(
-    records.map((record) => ({
+    records.map(({ authorId, ...record }) => ({
       ...record,
+      publicSlug: encodePublicCaseStudySlug(authorId, record.slug),
       summary: record.summary ?? null,
     })),
   );
@@ -290,8 +300,9 @@ export async function listPublicCaseStudies(client: PrismaClient = prisma): Prom
   });
 
   return caseStudySummarySchema.array().parse(
-    records.map((record) => ({
+    records.map(({ authorId, ...record }) => ({
       ...record,
+      publicSlug: encodePublicCaseStudySlug(authorId, record.slug),
       summary: record.summary ?? null,
     })),
   );
@@ -318,13 +329,25 @@ export async function getCaseStudyForUser(
 }
 
 export async function getPublicCaseStudyBySlug(
-  slug: string,
+  publicSlug: string,
   client: PrismaClient = prisma,
 ): Promise<CaseStudyDetail | null> {
+  const decoded = decodePublicCaseStudySlug(publicSlug);
+
+  if (!decoded) {
+    return null;
+  }
+
+  const authorIds = getConfiguredPublicCaseStudyAuthorIds();
+
+  if (authorIds.length > 0 && !authorIds.includes(decoded.authorId)) {
+    return null;
+  }
+
   const record = await client.caseStudy.findFirst({
-    where: buildPublicCaseStudyWhere(slug),
-    orderBy: {
-      updatedAt: "desc",
+    where: {
+      authorId: decoded.authorId,
+      slug: decoded.slug,
     },
     include: caseStudyDetailInclude,
   });

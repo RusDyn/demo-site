@@ -4,6 +4,7 @@ import { after, afterEach, test } from "node:test";
 import type { Prisma, PrismaClient } from "@prisma/client";
 
 import { getPublicCaseStudyBySlug, listPublicCaseStudies } from "@/lib/prisma";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 
 const originalPublicCaseStudyAuthors = process.env.PUBLIC_CASE_STUDIES_AUTHOR_IDS;
 const originalNodeEnv = process.env.NODE_ENV;
@@ -61,11 +62,11 @@ test("getPublicCaseStudyBySlug scopes queries by slug and author ids", async () 
     },
   } as unknown as PrismaClient;
 
-  await getPublicCaseStudyBySlug("example-slug", client);
+  await getPublicCaseStudyBySlug(encodePublicCaseStudySlug("user-42", "example-slug"), client);
 
   assert(receivedArgs);
   assert.deepEqual(receivedArgs?.where, {
-    authorId: { in: ["user-42"] },
+    authorId: "user-42",
     slug: "example-slug",
   });
 });

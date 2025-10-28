@@ -103,6 +103,7 @@ export const caseStudyAssetCreateSchema = caseStudyAssetSchema.pick({
 export const caseStudySummarySchema = z.object({
   id: z.string(),
   slug: z.string(),
+  publicSlug: z.string(),
   title: z.string(),
   summary: z.string().nullable(),
   createdAt: z.date(),

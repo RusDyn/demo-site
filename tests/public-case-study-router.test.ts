@@ -3,6 +3,7 @@ import { afterEach, mock, test } from "node:test";
 
 import type { TRPCContext } from "@/server/api/context";
 import type { CaseStudyDetail, CaseStudySummary } from "@/lib/validators/case-study";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 
 function createContext(): TRPCContext {
   return {
@@ -11,9 +12,12 @@ function createContext(): TRPCContext {
   };
 }
 
+const samplePublicSlug = encodePublicCaseStudySlug("user-1", "sample-case-study");
+
 const sampleSummary: CaseStudySummary = {
   id: "cs-1",
   slug: "sample-case-study",
+  publicSlug: samplePublicSlug,
   title: "Sample Case Study",
   summary: "This is a sample.",
   createdAt: new Date("2024-01-01T00:00:00Z"),
@@ -73,7 +77,7 @@ test("public case study by slug returns detail", async () => {
   });
   const { publicCaseStudyRouter } = await importRouter();
   const caller = publicCaseStudyRouter.createCaller(createContext());
-  const result = await caller.bySlug({ slug: "sample-case-study" });
+  const result = await caller.bySlug({ slug: samplePublicSlug });
   assert.deepEqual(result, sampleDetail);
 });
 
@@ -83,7 +87,7 @@ test("public case study by slug throws when missing", async () => {
   });
   const { publicCaseStudyRouter } = await importRouter();
   const caller = publicCaseStudyRouter.createCaller(createContext());
-  await assert.rejects(() => caller.bySlug({ slug: "missing" }), (error: unknown) => {
+  await assert.rejects(() => caller.bySlug({ slug: samplePublicSlug }), (error: unknown) => {
     if (error && typeof error === "object" && "code" in error) {
       return (error as { code?: string }).code === "NOT_FOUND";
     }

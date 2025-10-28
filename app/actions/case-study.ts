@@ -48,17 +48,17 @@ function normalizeMutationInput(input: CaseStudyMutationInput): CaseStudyMutatio
 
 interface RevalidateCaseStudyOptions {
   caseStudyId?: string | null;
-  slug?: string | null;
-  previousSlug?: string | null;
+  publicSlug?: string | null;
+  previousPublicSlug?: string | null;
 }
 
 async function revalidateCaseStudyPaths({
   caseStudyId,
-  slug,
-  previousSlug,
+  publicSlug,
+  previousPublicSlug,
 }: RevalidateCaseStudyOptions = {}): Promise<void> {
-  const slugs = new Set(
-    [slug, previousSlug].filter(
+  const publicSlugs = new Set(
+    [publicSlug, previousPublicSlug].filter(
       (value): value is string => typeof value === "string" && value.length > 0,
     ),
   );
@@ -66,10 +66,10 @@ async function revalidateCaseStudyPaths({
   const paths = new Set<string>([
     "/case-studies",
     "/dashboard/case-studies",
-    slugs.size === 0 ? "/case-studies/[slug]" : "",
+    publicSlugs.size === 0 ? "/case-studies/[publicSlug]" : "",
   ]);
 
-  for (const currentSlug of slugs) {
+  for (const currentSlug of publicSlugs) {
     paths.add(`/case-studies/${currentSlug}`);
   }
 
@@ -121,19 +121,21 @@ export async function saveCaseStudyAction(
   }
 
   try {
-    let previousSlug: string | null = null;
+    let previousPublicSlug: string | null = null;
 
     if (parsed.data.id) {
       const existing = await getCaseStudyForUser(session.user.id, parsed.data.id);
-      previousSlug = existing?.slug ?? null;
+      previousPublicSlug = existing?.publicSlug ?? null;
     }
 
     const caseStudy = await saveCaseStudyForUser(session.user.id, parsed.data);
     await revalidateCaseStudyPaths({
       caseStudyId: caseStudy.id,
-      slug: caseStudy.slug,
-      previousSlug:
-        previousSlug && previousSlug !== caseStudy.slug ? previousSlug : null,
+      publicSlug: caseStudy.publicSlug,
+      previousPublicSlug:
+        previousPublicSlug && previousPublicSlug !== caseStudy.publicSlug
+          ? previousPublicSlug
+          : null,
     });
     return { success: true, caseStudy } as const;
   } catch (error) {

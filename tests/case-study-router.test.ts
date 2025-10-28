@@ -6,6 +6,7 @@ import type {
   CaseStudyDetail,
   CaseStudySummary,
 } from "@/lib/validators/case-study";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 
 function createContext(): TRPCContext {
   return {
@@ -25,6 +26,7 @@ function createContext(): TRPCContext {
 const sampleSummary: CaseStudySummary = {
   id: "cs-1",
   slug: "sample-case-study",
+  publicSlug: encodePublicCaseStudySlug("user-123", "sample-case-study"),
   title: "Sample Case Study",
   summary: "This is a sample.",
   createdAt: new Date("2024-01-01T00:00:00Z"),

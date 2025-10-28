@@ -47,7 +47,7 @@ export default async function PublicCaseStudiesPage(): Promise<ReactElement> {
         <div className="rounded-lg border border-border p-6 shadow-sm">
           <CaseStudySummaryList
             items={caseStudies}
-            getHref={(item) => `/case-studies/${item.slug}`}
+            getHref={(item) => `/case-studies/${item.publicSlug}`}
             ctaLabel="Read story"
             emptyState={
               <p className="text-sm text-muted-foreground">

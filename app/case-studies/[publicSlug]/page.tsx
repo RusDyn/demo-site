@@ -7,12 +7,12 @@ import { CaseStudyDetailContent } from "@/components/case-studies/case-study-det
 import { createTRPCContext } from "@/server/api/context";
 import { appRouter } from "@/server/api/root";
 
-const loadCaseStudy = async (slug: string) => {
+const loadCaseStudy = async (publicSlug: string) => {
   const context = await createTRPCContext();
   const caller = appRouter.createCaller(context);
 
   try {
-    return await caller.publicCaseStudy.bySlug({ slug });
+    return await caller.publicCaseStudy.bySlug({ slug: publicSlug });
   } catch (error) {
     if (error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "NOT_FOUND") {
       return null;
@@ -25,10 +25,10 @@ const loadCaseStudy = async (slug: string) => {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ publicSlug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const caseStudy = await loadCaseStudy(slug);
+  const { publicSlug } = await params;
+  const caseStudy = await loadCaseStudy(publicSlug);
 
   if (!caseStudy) {
     return {
@@ -51,10 +51,10 @@ export async function generateMetadata({
 export default async function PublicCaseStudyDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ publicSlug: string }>;
 }): Promise<ReactElement> {
-  const { slug } = await params;
-  const caseStudy = await loadCaseStudy(slug);
+  const { publicSlug } = await params;
+  const caseStudy = await loadCaseStudy(publicSlug);
 
   if (!caseStudy) {
     notFound();
