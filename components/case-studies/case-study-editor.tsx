@@ -376,7 +376,7 @@ export function CaseStudyEditor(): ReactElement {
               } satisfies CaseStudyDraftData);
 
             saveCaseStudyDraft(snapshot);
-            router.push("/case-studies/new");
+            router.push("/dashboard/case-studies/new");
           }}
           className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
         >

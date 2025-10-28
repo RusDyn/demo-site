@@ -12,7 +12,7 @@ export default function CaseStudyCreatePage(): ReactElement {
           <p className="text-sm text-muted-foreground">Capture the high points first, then refine the details later.</p>
         </div>
         <Link
-          href="/case-studies"
+          href="/dashboard/case-studies"
           className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
         >
           Back to list

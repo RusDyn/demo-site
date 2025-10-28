@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 
 import type { CaseStudyAsset, CaseStudyDetail } from "@/lib/validators/case-study";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 
 const detail: CaseStudyDetail = {
   id: "cs-1",
   slug: "sample",
+  publicSlug: encodePublicCaseStudySlug("user-123", "sample"),
   title: "Sample",
   summary: "Summary",
   audience: "Operators",
@@ -36,6 +38,8 @@ const prismaDefaults = {
     Promise.reject(new Error("deleteCaseStudyAssetForUser mock not configured")),
   getCaseStudyAssetForUser: (..._args: unknown[]) =>
     Promise.reject(new Error("getCaseStudyAssetForUser mock not configured")),
+  getCaseStudyForUser: (..._args: unknown[]) =>
+    Promise.reject(new Error("getCaseStudyForUser mock not configured")),
 } satisfies Record<string, (...args: unknown[]) => Promise<unknown>>;
 
 let importId = 0;
@@ -140,7 +144,62 @@ test("saveCaseStudyAction validates session and normalizes input", async () => {
   });
 
   assert.ok(result.success);
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    `/case-studies/${detail.publicSlug}`,
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
+});
+
+test("saveCaseStudyAction revalidates previous slug when renamed", async () => {
+  const revalidated: string[] = [];
+  setupAuthMock({
+    user: { id: "user-123" },
+  });
+  setupPrismaMock({
+    getCaseStudyForUser: () =>
+      Promise.resolve({
+        ...detail,
+        slug: "original",
+        publicSlug: encodePublicCaseStudySlug("user-123", "original"),
+      }),
+    saveCaseStudyForUser: () =>
+      Promise.resolve({
+        ...detail,
+        slug: "updated",
+        publicSlug: encodePublicCaseStudySlug("user-123", "updated"),
+      }),
+  });
+  setupRevalidateMock((path) => {
+    revalidated.push(path);
+  });
+
+  const { saveCaseStudyAction } = await importCaseStudyActions();
+  const result = await saveCaseStudyAction({
+    id: "cs-1",
+    slug: "updated",
+    title: "Sample",
+    audience: "Operators",
+    summary: "Summary",
+    headline: "Headline",
+    background: "Background",
+    results: "Results",
+    heroAssetId: null,
+    assetIds: [],
+    sections: [],
+  });
+
+  assert.ok(result.success);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    `/case-studies/${encodePublicCaseStudySlug("user-123", "updated")}`,
+    `/case-studies/${encodePublicCaseStudySlug("user-123", "original")}`,
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("saveCaseStudyAction returns unauthorized without session", async () => {
@@ -186,7 +245,13 @@ test("deleteCaseStudyAction calls repository and revalidates", async () => {
   const result = await deleteCaseStudyAction("cs-1");
   assert.deepEqual(result, { success: true });
   assert.strictEqual(deletedId, "cs-1");
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/[publicSlug]",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
@@ -233,8 +298,10 @@ test("uploadCaseStudyAssetAction uploads and stores metadata", async () => {
     assert.strictEqual(result.signedUrl, "https://example.com/file.png");
     assert.deepEqual(revalidated, [
       "/case-studies",
-      "/case-studies/cs-1",
-      "/case-studies/cs-1/edit",
+      "/dashboard/case-studies",
+      "/case-studies/[publicSlug]",
+      "/dashboard/case-studies/cs-1",
+      "/dashboard/case-studies/cs-1/edit",
     ]);
   } finally {
     process.env.SUPABASE_STORAGE_BUCKET = originalBucket;
@@ -272,7 +339,13 @@ test("deleteCaseStudyAssetAction deletes Supabase object and revalidates", async
     caseStudyId: "cs-1",
     heroCleared: false,
   });
-  assert.deepEqual(revalidated, ["/case-studies", "/case-studies/cs-1", "/case-studies/cs-1/edit"]);
+  assert.deepEqual(revalidated, [
+    "/case-studies",
+    "/dashboard/case-studies",
+    "/case-studies/[publicSlug]",
+    "/dashboard/case-studies/cs-1",
+    "/dashboard/case-studies/cs-1/edit",
+  ]);
 });
 
 test("deleteCaseStudyAssetAction requires authentication", async () => {

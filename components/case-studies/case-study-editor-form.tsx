@@ -324,7 +324,7 @@ export function CaseStudyForm({
           await utils.caseStudy.byId.invalidate({ id: saved.id });
 
           if (redirectOnCreate && wasNew) {
-            router.replace(`/case-studies/${saved.id}/edit`);
+            router.replace(`/dashboard/case-studies/${saved.id}/edit`);
           }
         })
         .catch((submissionError: unknown) => {

@@ -9,6 +9,7 @@ import {
   deleteCaseStudyAssetForUser,
   deleteCaseStudyForUser,
   getCaseStudyAssetForUser,
+  getCaseStudyForUser,
   saveCaseStudyForUser,
 } from "@/lib/prisma";
 import {
@@ -45,14 +46,42 @@ function normalizeMutationInput(input: CaseStudyMutationInput): CaseStudyMutatio
   };
 }
 
-async function revalidateCaseStudyPaths(caseStudyId?: string): Promise<void> {
-  const paths = ["/case-studies"];
+interface RevalidateCaseStudyOptions {
+  caseStudyId?: string | null;
+  publicSlug?: string | null;
+  previousPublicSlug?: string | null;
+}
+
+async function revalidateCaseStudyPaths({
+  caseStudyId,
+  publicSlug,
+  previousPublicSlug,
+}: RevalidateCaseStudyOptions = {}): Promise<void> {
+  const publicSlugs = new Set(
+    [publicSlug, previousPublicSlug].filter(
+      (value): value is string => typeof value === "string" && value.length > 0,
+    ),
+  );
+
+  const paths = new Set<string>([
+    "/case-studies",
+    "/dashboard/case-studies",
+    publicSlugs.size === 0 ? "/case-studies/[publicSlug]" : "",
+  ]);
+
+  for (const currentSlug of publicSlugs) {
+    paths.add(`/case-studies/${currentSlug}`);
+  }
+
+  paths.delete("");
+
   if (caseStudyId) {
-    paths.push(`/case-studies/${caseStudyId}`, `/case-studies/${caseStudyId}/edit`);
+    paths.add(`/dashboard/case-studies/${caseStudyId}`);
+    paths.add(`/dashboard/case-studies/${caseStudyId}/edit`);
   }
 
   await Promise.all(
-    paths.map(
+    [...paths].map(
       (path) =>
         new Promise<void>((resolve) => {
           revalidatePath(path);
@@ -92,8 +121,22 @@ export async function saveCaseStudyAction(
   }
 
   try {
+    let previousPublicSlug: string | null = null;
+
+    if (parsed.data.id) {
+      const existing = await getCaseStudyForUser(session.user.id, parsed.data.id);
+      previousPublicSlug = existing?.publicSlug ?? null;
+    }
+
     const caseStudy = await saveCaseStudyForUser(session.user.id, parsed.data);
-    await revalidateCaseStudyPaths(caseStudy.id);
+    await revalidateCaseStudyPaths({
+      caseStudyId: caseStudy.id,
+      publicSlug: caseStudy.publicSlug,
+      previousPublicSlug:
+        previousPublicSlug && previousPublicSlug !== caseStudy.publicSlug
+          ? previousPublicSlug
+          : null,
+    });
     return { success: true, caseStudy } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to save case study";
@@ -121,7 +164,7 @@ export async function deleteCaseStudyAction(id: string): Promise<DeleteCaseStudy
 
   try {
     await deleteCaseStudyForUser(session.user.id, id);
-    await revalidateCaseStudyPaths(id);
+    await revalidateCaseStudyPaths({ caseStudyId: id });
     return { success: true } as const;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to delete case study";
@@ -190,7 +233,7 @@ export async function uploadCaseStudyAssetAction(
     });
 
     if (parsed.data.caseStudyId) {
-      await revalidateCaseStudyPaths(parsed.data.caseStudyId);
+      await revalidateCaseStudyPaths({ caseStudyId: parsed.data.caseStudyId });
     }
 
     return {
@@ -278,7 +321,7 @@ export async function deleteCaseStudyAssetAction(
       parsed.data.assetId,
     );
 
-    await revalidateCaseStudyPaths(caseStudyId ?? undefined);
+    await revalidateCaseStudyPaths({ caseStudyId });
 
     return {
       success: true,

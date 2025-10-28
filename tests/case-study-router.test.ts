@@ -7,6 +7,7 @@ import {
   type CaseStudyDetail,
   type CaseStudySummary,
 } from "@/lib/validators/case-study";
+import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
 import { demoCaseStudies } from "@/prisma/seed-data";
 
 function createContext(): TRPCContext {
@@ -27,6 +28,7 @@ function createContext(): TRPCContext {
 const sampleSummary: CaseStudySummary = {
   id: "cs-1",
   slug: "sample-case-study",
+  publicSlug: encodePublicCaseStudySlug("user-123", "sample-case-study"),
   title: "Sample Case Study",
   summary: "This is a sample.",
   createdAt: new Date("2024-01-01T00:00:00Z"),
@@ -158,6 +160,7 @@ test("seeded case studies satisfy the summary schema", () => {
       caseStudySummarySchema.parse({
         id: "seed-id",
         slug: study.slug,
+        publicSlug: encodePublicCaseStudySlug("demo-user", study.slug),
         title: study.title,
         summary: study.summary,
         createdAt: new Date(),

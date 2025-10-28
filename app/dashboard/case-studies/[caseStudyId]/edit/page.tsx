@@ -17,7 +17,7 @@ export default async function CaseStudyEditPage({
           <p className="text-sm text-muted-foreground">Update narrative, media, and metadata before publishing.</p>
         </div>
         <Link
-          href={`/case-studies/${caseStudyId}`}
+          href={`/dashboard/case-studies/${caseStudyId}`}
           className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
         >
           View details
