@@ -40,6 +40,7 @@ A full-stack portfolio platform built with Next.js 15, Prisma, and Supabase. The
      ```bash
      npm run prisma db seed
      ```
+   - After the seed completes, open `npx prisma studio` (or inspect the `User` table directly) to copy the seeded user's `id`. Add that value to `PUBLIC_CASE_STUDIES_AUTHOR_IDS` in `.env.local`—use comma-separated IDs if you want multiple authors available to the marketing pages.
    - Re-running the seed keeps the demo user in sync and refreshes the case study copy without duplicating records.
 6. **Configure OAuth providers**
    - **GitHub**: create an OAuth App with callback `https://<your-domain>/api/auth/callback/github` (use `http://localhost:3000` for dev). Store the client ID and secret in `.env.local`.
