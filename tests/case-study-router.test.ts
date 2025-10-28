@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
 
 import type { TRPCContext } from "@/server/api/context";
-import type {
-  CaseStudyDetail,
-  CaseStudySummary,
+import {
+  caseStudySummarySchema,
+  type CaseStudyDetail,
+  type CaseStudySummary,
 } from "@/lib/validators/case-study";
 import { encodePublicCaseStudySlug } from "@/lib/public-case-study";
+import { demoCaseStudies } from "@/prisma/seed-data";
 
 function createContext(): TRPCContext {
   return {
@@ -150,4 +152,19 @@ test("case study delete forwards to repository", async () => {
   const result = await caller.delete({ id: "cs-1" });
   assert.deepEqual(result, { success: true });
   assert.deepEqual(deletedArgs, ["user-123", "cs-1"]);
+});
+
+test("seeded case studies satisfy the summary schema", () => {
+  for (const study of demoCaseStudies) {
+    assert.doesNotThrow(() =>
+      caseStudySummarySchema.parse({
+        id: "seed-id",
+        slug: study.slug,
+        title: study.title,
+        summary: study.summary,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    );
+  }
 });

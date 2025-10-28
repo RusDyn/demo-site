@@ -22,12 +22,20 @@ export default async function DashboardLayout({
           <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground">Manage content that powers your portfolio.</p>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
-        >
-          Back to overview
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/settings"
+            className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
+          >
+            Settings
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
+          >
+            Back to overview
+          </Link>
+        </div>
       </header>
       {children}
     </main>

@@ -1,5 +1,6 @@
 // Prisma's generated client is unavailable in the CI environment, so we rely on runtime validation instead.
 import { Prisma, PrismaClient } from "@prisma/client";
+import type { User as PrismaUser } from "@prisma/client";
 import type {
   Asset as PrismaAsset,
   CaseStudy as PrismaCaseStudy,
@@ -143,10 +144,16 @@ interface SeedUserInput {
   emailVerified: Date;
 }
 
-export async function ensureUser(seed: SeedUserInput): Promise<void> {
-  await prisma.user.upsert({
+export async function ensureUser(
+  seed: SeedUserInput,
+  client: PrismaClient = prisma,
+): Promise<PrismaUser> {
+  return client.user.upsert({
     where: { email: seed.email },
-    update: {},
+    update: {
+      name: seed.name,
+      emailVerified: seed.emailVerified,
+    },
     create: seed,
   });
 }

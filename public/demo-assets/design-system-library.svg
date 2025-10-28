@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-labelledby="title desc">
+  <title id="title">Design system library illustration</title>
+  <desc id="desc">Cards and interface components arranged in a tidy grid.</desc>
+  <rect width="320" height="200" rx="18" fill="#faf5ff" />
+  <rect x="28" y="32" width="96" height="56" rx="12" fill="#ddd6fe" />
+  <rect x="136" y="32" width="76" height="56" rx="12" fill="#c4b5fd" />
+  <rect x="224" y="32" width="68" height="56" rx="12" fill="#a5b4fc" />
+  <rect x="36" y="48" width="52" height="12" rx="6" fill="#4c1d95" opacity="0.8" />
+  <rect x="144" y="48" width="52" height="12" rx="6" fill="#312e81" opacity="0.8" />
+  <rect x="232" y="48" width="44" height="12" rx="6" fill="#3730a3" opacity="0.8" />
+  <rect x="28" y="108" width="124" height="64" rx="14" fill="#ede9fe" />
+  <rect x="164" y="108" width="128" height="64" rx="14" fill="#ddd6fe" />
+  <rect x="40" y="124" width="88" height="16" rx="8" fill="#4c1d95" opacity="0.9" />
+  <rect x="176" y="124" width="96" height="16" rx="8" fill="#6d28d9" opacity="0.9" />
+  <rect x="176" y="148" width="64" height="12" rx="6" fill="#4338ca" opacity="0.6" />
+  <rect x="244" y="148" width="36" height="12" rx="6" fill="#4338ca" opacity="0.6" />
+</svg>

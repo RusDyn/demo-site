@@ -1,35 +1,38 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition, type ReactElement } from "react";
+import Link from "next/link";
+import { useCallback, useState, useTransition, type ReactElement } from "react";
 
 import { persistAnalyticsConsentAction } from "@/app/actions/analytics";
-import {
-  getClientAnalyticsConsent,
-  setClientAnalyticsConsent,
-  type AnalyticsConsentDecision,
-  type AnalyticsConsentState,
-} from "@/lib/analytics/consent";
+import { type AnalyticsConsentDecision } from "@/lib/analytics/consent";
 import { initPosthog } from "@/lib/analytics/posthog-client";
 
-function useConsentState(): {
-  consent: AnalyticsConsentState;
-  setConsent: (state: AnalyticsConsentState) => void;
-} {
-  const [consent, setConsent] = useState<AnalyticsConsentState>(() => getClientAnalyticsConsent());
+import { useAnalyticsConsentState } from "./use-analytics-consent-state";
 
-  useEffect(() => {
-    setConsent(getClientAnalyticsConsent());
-  }, []);
+interface ManagePreferencesProps {
+  consent: "granted" | "denied";
+}
 
-  return { consent, setConsent };
+function ManagePreferencesLink({ consent }: ManagePreferencesProps): ReactElement {
+  const label = consent === "granted" ? "Change analytics preference" : "Review analytics preference";
+
+  return (
+    <div className="fixed bottom-4 right-4 z-40">
+      <Link
+        href="/settings"
+        className="inline-flex items-center rounded-md border border-input bg-background/95 px-3 py-1.5 text-sm font-medium text-foreground shadow-lg transition hover:bg-muted"
+      >
+        Manage preferences
+        <span className="sr-only"> ({label})</span>
+      </Link>
+    </div>
+  );
 }
 
 export function AnalyticsConsentBanner(): ReactElement | null {
-  const { consent, setConsent } = useConsentState();
+  const { consent, setConsent } = useAnalyticsConsentState();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-
-  const shouldRender = consent === null;
 
   const applyDecision = useCallback(
     (decision: AnalyticsConsentDecision) => {
@@ -42,7 +45,6 @@ export function AnalyticsConsentBanner(): ReactElement | null {
               return;
             }
 
-            setClientAnalyticsConsent(decision);
             initPosthog(decision === "granted");
             setConsent(decision);
           })
@@ -58,8 +60,8 @@ export function AnalyticsConsentBanner(): ReactElement | null {
     [setConsent],
   );
 
-  if (!shouldRender) {
-    return null;
+  if (consent !== null) {
+    return <ManagePreferencesLink consent={consent} />;
   }
 
   return (
