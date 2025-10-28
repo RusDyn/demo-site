@@ -4,6 +4,11 @@ import path from "node:path";
 import { ensureUser, prisma, saveCaseStudyForUser } from "../lib/prisma";
 import { demoAssets, demoCaseStudies, demoUser } from "./seed-data";
 
+/**
+ * Marketing pages rely on PUBLIC_CASE_STUDIES_AUTHOR_IDS to expose seeded case studies.
+ * After running this script, copy the seeded user's ID into that comma-separated environment variable
+ * so public queries return the demo content.
+ */
 const assetDirectory = path.join(process.cwd(), "public", "demo-assets");
 const bucket = process.env.SUPABASE_STORAGE_BUCKET ?? "portfolio-assets";
 
