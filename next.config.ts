@@ -5,18 +5,26 @@ const supabaseStorageHostname = process.env.SUPABASE_URL
   ? new URL(process.env.SUPABASE_URL).hostname
   : undefined;
 
+const remotePatterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
+  {
+    protocol: "https",
+    hostname: "images.unsplash.com",
+    pathname: "/**",
+  },
+];
+
+if (supabaseStorageHostname) {
+  remotePatterns.push({
+    protocol: "https",
+    hostname: supabaseStorageHostname,
+    pathname: "/storage/v1/object/**",
+  });
+}
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: supabaseStorageHostname
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseStorageHostname,
-            pathname: "/storage/v1/object/**",
-          },
-        ]
-      : undefined,
+    remotePatterns,
   },
 };
 
