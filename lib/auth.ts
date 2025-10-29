@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 import NextAuth from "next-auth";
 import type { Session } from "next-auth";
 import GitHub from "next-auth/providers/github";
@@ -27,6 +29,7 @@ function requireEnv(name: string): string {
 
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
+  secret: resolveAuthSecret(),
   session: {
     strategy: "database",
   },
@@ -51,6 +54,29 @@ export const authConfig = {
     },
   },
 } satisfies Parameters<typeof NextAuth>[0];
+
+function resolveAuthSecret(): string {
+  const envSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+  if (envSecret) {
+    return envSecret;
+  }
+
+  const shouldEnforce =
+    process.env.VERCEL === "1" ||
+    process.env.CI === "true" ||
+    process.env.NODE_ENV === "production";
+
+  if (shouldEnforce) {
+    throw new Error("Missing environment variable: AUTH_SECRET or NEXTAUTH_SECRET");
+  }
+
+  const fallback = randomBytes(32).toString("hex");
+  console.warn(
+    "Missing environment variable: AUTH_SECRET or NEXTAUTH_SECRET. Generating ephemeral secret for local build.",
+  );
+  return fallback;
+}
 
 const authResult = NextAuth(authConfig);
 
