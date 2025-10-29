@@ -124,7 +124,7 @@ export default async function Home(): Promise<ReactElement> {
         <DemoHighlight />
       </section>
 
-      <FeatureGrid />
+      <FeatureGrid className="gap-6" />
 
       <TechStackMarquee />
 
