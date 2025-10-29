@@ -44,7 +44,7 @@ export function TechStackMarquee(): ReactElement {
         };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border bg-card/60 p-6 shadow-sm">
+    <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-background/75 via-card/70 to-secondary/20 p-6 shadow-md backdrop-blur">
       <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-background to-transparent" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-background to-transparent" aria-hidden="true" />
       <motion.ul
