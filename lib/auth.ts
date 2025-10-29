@@ -1,3 +1,5 @@
+import { randomBytes } from "crypto";
+
 import NextAuth from "next-auth";
 import type { Session } from "next-auth";
 import GitHub from "next-auth/providers/github";
@@ -25,34 +27,9 @@ function requireEnv(name: string): string {
   return fallback;
 }
 
-function requireAnyEnv(...names: string[]): string {
-  for (const name of names) {
-    // Accessing environment variables by name is required for configuration lookup.
-    // eslint-disable-next-line security/detect-object-injection
-    const value = process.env[name];
-
-    if (value) {
-      return value;
-    }
-  }
-
-  const primary = names[0] ?? "environment variable";
-  const shouldEnforce = process.env.VERCEL === "1" || process.env.CI === "true";
-
-  if (shouldEnforce) {
-    throw new Error(`Missing environment variable: ${names.join(" or ")}`);
-  }
-
-  const fallback = `placeholder-${primary.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-  console.warn(
-    `Missing environment variable: ${names.join(" or ")}. Using fallback value for local build.`,
-  );
-  return fallback;
-}
-
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
-  secret: requireAnyEnv("AUTH_SECRET", "NEXTAUTH_SECRET"),
+  secret: resolveAuthSecret(),
   session: {
     strategy: "database",
   },
@@ -77,6 +54,29 @@ export const authConfig = {
     },
   },
 } satisfies Parameters<typeof NextAuth>[0];
+
+function resolveAuthSecret(): string {
+  const envSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+
+  if (envSecret) {
+    return envSecret;
+  }
+
+  const shouldEnforce =
+    process.env.VERCEL === "1" ||
+    process.env.CI === "true" ||
+    process.env.NODE_ENV === "production";
+
+  if (shouldEnforce) {
+    throw new Error("Missing environment variable: AUTH_SECRET or NEXTAUTH_SECRET");
+  }
+
+  const fallback = randomBytes(32).toString("hex");
+  console.warn(
+    "Missing environment variable: AUTH_SECRET or NEXTAUTH_SECRET. Generating ephemeral secret for local build.",
+  );
+  return fallback;
+}
 
 const authResult = NextAuth(authConfig);
 
