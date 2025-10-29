@@ -106,16 +106,24 @@ export default async function Home(): Promise<ReactElement> {
               <HealthStatus />
             </HeroMotionItem>
           </div>
-          <HeroMotionItem className="flex justify-center lg:justify-end">
+          <HeroMotionItem className="flex flex-col items-center justify-center gap-2 lg:items-end">
             <Image
-              src="/illustrations/collaboration.svg"
-              alt="Illustration of teammates collaborating around an interface"
+              src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1080&h=720&q=80"
+              alt="Lush evergreen forest with sunlight filtering through the trees"
               priority
-              width={512}
-              height={512}
-              className="h-auto w-full max-w-sm"
-              sizes="(min-width: 1024px) 320px, (min-width: 768px) 60vw, 80vw"
+              width={1080}
+              height={720}
+              className="h-auto w-full max-w-md rounded-2xl object-cover shadow-lg"
+              sizes="(min-width: 1024px) 360px, (min-width: 768px) 60vw, 80vw"
             />
+            <Link
+              href="https://unsplash.com/photos/sp-p7uuT0tw"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
+            >
+              Photo by Sebastian Unrau on Unsplash
+            </Link>
           </HeroMotionItem>
         </div>
       </HeroAnimatedShell>
