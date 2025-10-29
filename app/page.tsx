@@ -64,13 +64,13 @@ export default async function Home(): Promise<ReactElement> {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col gap-8 px-6 py-12">
-      <HeroAnimatedShell className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-primary/15 via-background/80 to-secondary/20 p-8 shadow-lg backdrop-blur">
+      <HeroAnimatedShell className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-primary/30 via-card/85 to-secondary/35 p-8 shadow-lg backdrop-blur">
         <div
-          className="pointer-events-none absolute -left-24 -top-28 -z-10 h-48 w-48 rounded-full bg-primary/25 blur-3xl"
+          className="pointer-events-none absolute -left-24 -top-28 -z-10 h-48 w-48 rounded-full bg-primary/35 blur-3xl"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -bottom-32 -right-20 -z-10 h-56 w-56 rounded-full bg-secondary/30 blur-3xl"
+          className="pointer-events-none absolute -bottom-32 -right-20 -z-10 h-56 w-56 rounded-full bg-secondary/40 blur-3xl"
           aria-hidden="true"
         />
         <div className="grid items-center gap-8 lg:grid-cols-2">
@@ -120,7 +120,7 @@ export default async function Home(): Promise<ReactElement> {
         </div>
       </HeroAnimatedShell>
 
-      <section className="rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/20 via-card/80 to-background/70 p-8 shadow-md backdrop-blur">
+      <section className="rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/30 via-card/90 to-background/80 p-8 shadow-md backdrop-blur">
         <DemoHighlight />
       </section>
 

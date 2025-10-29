@@ -51,7 +51,7 @@ export function FeatureGrid({ className }: FeatureGridProps): ReactElement {
         return (
           <motion.article
             key={feature.title}
-            className="flex h-full flex-col gap-4 rounded-2xl border border-border/70 bg-gradient-to-br from-background/85 via-secondary/30 to-primary/20 p-6 shadow-sm ring-1 ring-inset ring-primary/10 backdrop-blur"
+            className="flex h-full flex-col gap-4 rounded-2xl border border-border/70 bg-gradient-to-br from-background/90 via-secondary/40 to-primary/25 p-6 shadow-sm ring-1 ring-inset ring-primary/15 backdrop-blur"
             initial={cardMotion.initial}
             whileInView={cardMotion.animate}
             viewport={{ once: true, amount: 0.2 }}
