@@ -25,8 +25,34 @@ function requireEnv(name: string): string {
   return fallback;
 }
 
+function requireAnyEnv(...names: string[]): string {
+  for (const name of names) {
+    // Accessing environment variables by name is required for configuration lookup.
+    // eslint-disable-next-line security/detect-object-injection
+    const value = process.env[name];
+
+    if (value) {
+      return value;
+    }
+  }
+
+  const primary = names[0] ?? "environment variable";
+  const shouldEnforce = process.env.VERCEL === "1" || process.env.CI === "true";
+
+  if (shouldEnforce) {
+    throw new Error(`Missing environment variable: ${names.join(" or ")}`);
+  }
+
+  const fallback = `placeholder-${primary.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  console.warn(
+    `Missing environment variable: ${names.join(" or ")}. Using fallback value for local build.`,
+  );
+  return fallback;
+}
+
 export const authConfig = {
   adapter: PrismaAdapter(prisma),
+  secret: requireAnyEnv("AUTH_SECRET", "NEXTAUTH_SECRET"),
   session: {
     strategy: "database",
   },
