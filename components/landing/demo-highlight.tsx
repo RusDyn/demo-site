@@ -46,7 +46,7 @@ export function DemoHighlight(): ReactElement {
       </motion.div>
 
       <figcaption className="space-y-3 text-center sm:text-left">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">
+        <p className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
           AI to dashboard workflow
         </p>
         <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
