@@ -51,13 +51,13 @@ export function FeatureGrid({ className }: FeatureGridProps): ReactElement {
         return (
           <motion.article
             key={feature.title}
-            className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-card/60 p-6 shadow-sm backdrop-blur"
+            className="flex h-full flex-col gap-4 rounded-2xl border border-border/70 bg-gradient-to-br from-background/85 via-secondary/30 to-primary/20 p-6 shadow-sm ring-1 ring-inset ring-primary/10 backdrop-blur"
             initial={cardMotion.initial}
             whileInView={cardMotion.animate}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.4, delay: index * 0.08, ease: "easeOut" }}
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
               {feature.renderIcon()}
             </div>
             <div className="space-y-2">
