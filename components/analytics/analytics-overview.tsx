@@ -6,6 +6,7 @@ import type {
   AnalyticsCohortSummary,
   AnalyticsEventSummary,
 } from "@/lib/analytics/posthog-server";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAnalyticsCohortsQuery, useAnalyticsTopEventsQuery } from "@/lib/trpc/react";
 
 function formatRelativeTime(timestamp: string | null | undefined): string {
@@ -53,7 +54,10 @@ function EventsCard({ events }: { events: AnalyticsEventSummary[] }): ReactEleme
   return (
     <div className="space-y-3">
       {events.map((event) => (
-        <div key={event.event} className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+        <div
+          key={event.event}
+          className="flex items-center justify-between rounded-md border border-border/80 bg-muted/50 px-4 py-3"
+        >
           <div>
             <p className="text-sm font-medium text-foreground">{event.event}</p>
             <p className="text-xs text-muted-foreground">Last seen {formatRelativeTime(event.lastSeenAt)}</p>
@@ -91,18 +95,6 @@ function CohortsCard({ cohorts }: { cohorts: AnalyticsCohortSummary[] }): ReactE
         ))}
       </tbody>
     </table>
-  );
-}
-
-function Card({ title, description, children }: { title: string; description: string; children: ReactElement }): ReactElement {
-  return (
-    <section className="rounded-lg border border-border p-6 shadow-sm">
-      <div className="mb-4 space-y-1">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      {children}
-    </section>
   );
 }
 
@@ -150,17 +142,23 @@ export function AnalyticsOverview(): ReactElement {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card
-        title="Top events"
-        description="Track the most engaged signals across case studies, AI tooling, and profile management."
-      >
-        {eventsContent}
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle>Top events</CardTitle>
+          <CardDescription>
+            Track the most engaged signals across case studies, AI tooling, and profile management.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>{eventsContent}</CardContent>
       </Card>
-      <Card
-        title="Audience cohorts"
-        description="Monitor growth of saved segments from PostHog to understand retention trends."
-      >
-        {cohortsContent}
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle>Audience cohorts</CardTitle>
+          <CardDescription>
+            Monitor growth of saved segments from PostHog to understand retention trends.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>{cohortsContent}</CardContent>
       </Card>
     </div>
   );
