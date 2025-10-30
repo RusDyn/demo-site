@@ -2,6 +2,7 @@ import Link from "next/link";
 import { type ReactElement, type ReactNode } from "react";
 
 import { type CaseStudySummary } from "@/lib/validators/case-study";
+import { Button } from "@/components/ui/button";
 
 function formatRelativeTimestamp(timestamp: Date): string {
   const now = Date.now();
@@ -59,12 +60,9 @@ export function CaseStudySummaryList({
               <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
               <p className="text-xs text-muted-foreground">Updated {formatRelativeTimestamp(item.updatedAt)}</p>
             </div>
-            <Link
-              href={getHref(item)}
-              className="inline-flex items-center rounded-md border border-input px-3 py-1 text-sm font-medium text-foreground transition hover:bg-muted"
-            >
-              {ctaLabel}
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href={getHref(item)}>{ctaLabel}</Link>
+            </Button>
           </div>
           {item.summary ? <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{item.summary}</p> : null}
         </li>

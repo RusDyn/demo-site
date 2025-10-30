@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useAiGeneration } from "./use-ai-generation";
 import type { AiOutlinePromptInput, AiOutlineResponse } from "@/lib/validators/ai";
 import { aiToneSchema } from "@/lib/validators/ai";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface OutlineSectionDraft {
   title: string;
@@ -130,32 +135,30 @@ export function AiOutlineTool({ topic, audience, context, keyPoints, onAccept }:
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <label className="text-sm text-muted-foreground" htmlFor={toneSelectId}>
+            <Label className="text-sm text-muted-foreground" htmlFor={toneSelectId}>
               Tone
-            </label>
-            <select
-              id={toneSelectId}
+            </Label>
+            <Select
               value={tone}
-              onChange={(event) => {
-                setTone(event.target.value as AiOutlinePromptInput["tone"]);
+              onValueChange={(value) => {
+                setTone(value as AiOutlinePromptInput["tone"]);
               }}
-              className="rounded-md border border-input bg-background px-2 py-1 text-sm"
             >
-              {toneOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger id={toneSelectId} className="w-[160px]">
+                <SelectValue placeholder="Select tone" />
+              </SelectTrigger>
+              <SelectContent>
+                {toneOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <button
-            type="button"
-            onClick={handleGenerate}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isPending}
-          >
+          <Button type="button" onClick={handleGenerate} disabled={isPending}>
             {isPending ? "Generating…" : "Generate outline"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -185,30 +188,30 @@ export function AiOutlineTool({ topic, audience, context, keyPoints, onAccept }:
               return (
                 <div key={`section-${index}`} className="space-y-2 rounded-md border border-border p-4">
                   <div>
-                    <label className="text-xs font-medium uppercase text-muted-foreground" htmlFor={titleId}>
+                    <Label className="text-xs font-medium uppercase text-muted-foreground" htmlFor={titleId}>
                       Section title
-                    </label>
-                    <input
+                    </Label>
+                    <Input
                       id={titleId}
                       value={section.title}
                       onChange={(event) => {
                         handleSectionChange(index, "title", event.target.value);
                       }}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      className="mt-1"
                       placeholder="What the customer achieved"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium uppercase text-muted-foreground" htmlFor={notesId}>
+                    <Label className="text-xs font-medium uppercase text-muted-foreground" htmlFor={notesId}>
                       Key talking points
-                    </label>
-                    <textarea
+                    </Label>
+                    <Textarea
                       id={notesId}
                       value={section.description}
                       onChange={(event) => {
                         handleSectionChange(index, "description", event.target.value);
                       }}
-                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      className="mt-1"
                       placeholder="Summarise the pain, solution, and outcome."
                       rows={3}
                     />
@@ -221,24 +224,19 @@ export function AiOutlineTool({ topic, audience, context, keyPoints, onAccept }:
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => {
             reset();
             setDraftSections([]);
           }}
-          className="rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
         >
           Clear
-        </button>
-        <button
-          type="button"
-          onClick={handleAccept}
-          disabled={!canAccept}
-          className="rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </Button>
+        <Button type="button" variant="secondary" onClick={handleAccept} disabled={!canAccept}>
           Use outline
-        </button>
+        </Button>
       </div>
     </div>
   );

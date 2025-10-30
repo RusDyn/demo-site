@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { ReactElement, ReactNode } from "react";
 
 import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardLayout({
   children,
@@ -23,18 +24,12 @@ export default async function DashboardLayout({
           <p className="text-sm text-muted-foreground">Manage content that powers your portfolio.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/settings"
-            className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
-          >
-            Settings
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
-          >
-            Back to overview
-          </Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/settings">Settings</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/">Back to overview</Link>
+          </Button>
         </div>
       </header>
       {children}

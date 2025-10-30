@@ -24,6 +24,10 @@ import {
   type CaseStudyDraftData,
   type CaseStudyDraftSection,
 } from "@/lib/case-studies/draft-storage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type OutlineSectionDisplay = CaseStudyDraftSection;
 
@@ -211,38 +215,38 @@ export function CaseStudyEditor(): ReactElement {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={titleId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={titleId}>
               Case study title
-            </label>
-            <input
+            </Label>
+            <Input
               id={titleId}
               value={title}
               onChange={(event) => {
                 setTitle(event.target.value);
               }}
               placeholder="Acme reduces churn with your product"
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={audienceId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={audienceId}>
               Audience
-            </label>
-            <input
+            </Label>
+            <Input
               id={audienceId}
               value={audience}
               onChange={(event) => {
                 setAudience(event.target.value);
               }}
               placeholder="Marketing operations leaders"
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={backgroundId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={backgroundId}>
               Background
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id={backgroundId}
               value={background}
               onChange={(event) => {
@@ -250,14 +254,14 @@ export function CaseStudyEditor(): ReactElement {
               }}
               placeholder="Describe the customer's situation in plain language."
               rows={6}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={resultsId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={resultsId}>
               Key results
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id={resultsId}
               value={results}
               onChange={(event) => {
@@ -265,31 +269,31 @@ export function CaseStudyEditor(): ReactElement {
               }}
               placeholder="List the most important metrics, quotes, or proof points."
               rows={6}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={headlineId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={headlineId}>
               Hero headline
-            </label>
-            <input
+            </Label>
+            <Input
               id={headlineId}
               value={headline}
               onChange={(event) => {
                 setHeadline(event.target.value);
               }}
               placeholder="Generated or hand-crafted headline"
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground" htmlFor={summaryId}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={summaryId}>
               Supporting summary
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id={summaryId}
               value={optimisticSummary}
               onChange={(event) => {
@@ -297,17 +301,12 @@ export function CaseStudyEditor(): ReactElement {
               }}
               rows={6}
               placeholder="Use the AI assistant or summarise manually."
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="mt-1"
             />
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={runServerSummary}
-                className="inline-flex items-center rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isSummaryPending}
-              >
+              <Button type="button" variant="outline" onClick={runServerSummary} disabled={isSummaryPending}>
                 {isSummaryPending ? "Drafting…" : "Polish with server action"}
-              </button>
+              </Button>
               {summaryError ? <p className="text-sm text-destructive">{summaryError}</p> : null}
             </div>
           </div>
@@ -360,7 +359,7 @@ export function CaseStudyEditor(): ReactElement {
         <p className="flex-1">
           Happy with this outline? Save it as a draft and continue polishing it in the case study dashboard.
         </p>
-        <button
+        <Button
           type="button"
           onClick={() => {
             const snapshot =
@@ -378,10 +377,9 @@ export function CaseStudyEditor(): ReactElement {
             saveCaseStudyDraft(snapshot);
             router.push("/dashboard/case-studies/new");
           }}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
         >
           Continue in dashboard
-        </button>
+        </Button>
       </div>
     </section>
   );

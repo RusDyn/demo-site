@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { CaseStudySummaryList } from "@/components/case-studies/case-study-summary-list";
 import { createTRPCContext } from "@/server/api/context";
 import { appRouter } from "@/server/api/root";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Customer case studies",
@@ -27,18 +28,12 @@ export default async function PublicCaseStudiesPage(): Promise<ReactElement> {
           </p>
         </div>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-          <Link
-            href="/api/auth/signin"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-          >
-            Start your own story
-          </Link>
-          <Link
-            href="/dashboard/case-studies"
-            className="inline-flex items-center justify-center rounded-md border border-input px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
-          >
-            Manage case studies
-          </Link>
+          <Button asChild>
+            <Link href="/api/auth/signin">Start your own story</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/case-studies">Manage case studies</Link>
+          </Button>
         </div>
       </section>
 

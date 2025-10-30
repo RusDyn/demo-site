@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 import { CaseStudyDetailContent } from "@/components/case-studies/case-study-detail-content";
 import { createTRPCContext } from "@/server/api/context";
 import { appRouter } from "@/server/api/root";
+import { Button } from "@/components/ui/button";
 
 const loadCaseStudy = async (publicSlug: string) => {
   const context = await createTRPCContext();
@@ -63,18 +64,12 @@ export default async function PublicCaseStudyDetailPage({
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-12">
       <div className="flex items-center justify-between gap-3">
-        <Link
-          href="/case-studies"
-          className="inline-flex items-center rounded-md border border-input px-3 py-1 text-sm font-medium text-foreground transition hover:bg-muted"
-        >
-          Back to stories
-        </Link>
-        <Link
-          href="/dashboard/case-studies"
-          className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-        >
-          Edit your stories
-        </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/case-studies">Back to stories</Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link href="/dashboard/case-studies">Edit your stories</Link>
+        </Button>
       </div>
       <section className="rounded-lg border border-border p-6 shadow-sm">
         <CaseStudyDetailContent caseStudy={caseStudy} />

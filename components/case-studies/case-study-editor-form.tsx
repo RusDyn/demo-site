@@ -31,6 +31,11 @@ import {
   type CaseStudyAsset,
   type CaseStudyDetail,
 } from "@/lib/validators/case-study";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CaseStudyEditorShellProps {
   caseStudyId?: string;
@@ -208,23 +213,25 @@ export function CaseStudyForm({
       sections.map((section, index) => (
         <div key={section.id ?? `new-${index}`} className="space-y-2 rounded-md border border-border p-4 shadow-sm">
           <div className="flex items-center justify-between gap-2">
-            <label className="text-sm font-medium text-foreground" htmlFor={`section-title-${index}`}>
+            <Label className="text-sm font-medium text-foreground" htmlFor={`section-title-${index}`}>
               Section title
-            </label>
-            <button
+            </Label>
+            <Button
               type="button"
+              variant="link"
+              size="sm"
+              className="px-0 text-destructive"
               onClick={() => {
                 setSections((previous) => {
                   const updated = previous.filter((_, idx) => idx !== index);
                   return updated.map((item, idx) => ({ ...item, position: idx }));
                 });
               }}
-              className="text-xs text-destructive transition hover:underline"
             >
               Remove
-            </button>
+            </Button>
           </div>
-          <input
+          <Input
             id={`section-title-${index}`}
             value={section.title}
             onChange={(event) => {
@@ -233,13 +240,13 @@ export function CaseStudyForm({
                 previous.map((item, idx) => (idx === index ? { ...item, title: value } : item)),
               );
             }}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full"
             placeholder="Impact headline"
           />
-          <label className="text-sm font-medium text-foreground" htmlFor={`section-content-${index}`}>
+          <Label className="text-sm font-medium text-foreground" htmlFor={`section-content-${index}`}>
             Section content
-          </label>
-          <textarea
+          </Label>
+          <Textarea
             id={`section-content-${index}`}
             value={section.content}
             onChange={(event) => {
@@ -249,7 +256,7 @@ export function CaseStudyForm({
               );
             }}
             rows={4}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full"
             placeholder="Describe the outcome in detail."
           />
         </div>
@@ -263,6 +270,7 @@ export function CaseStudyForm({
   };
 
   const isFormDisabled = isLoading || isPending;
+  const assetUploadInputId = "case-study-asset-upload";
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -454,25 +462,25 @@ export function CaseStudyForm({
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-title">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-title">
               Title
-            </label>
-            <input
+            </Label>
+            <Input
               id="case-study-title"
               value={title}
               onChange={(event) => {
                 setTitle(event.target.value);
               }}
               placeholder="Acme reduces churn with your product"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-slug">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-slug">
               Slug
-            </label>
-            <input
+            </Label>
+            <Input
               id="case-study-slug"
               value={slug}
               onChange={(event) => {
@@ -480,84 +488,84 @@ export function CaseStudyForm({
                 setSlug(event.target.value);
               }}
               placeholder="acme-reduces-churn"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-audience">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-audience">
               Audience
-            </label>
-            <input
+            </Label>
+            <Input
               id="case-study-audience"
               value={audience}
               onChange={(event) => {
                 setAudience(event.target.value);
               }}
               placeholder="Marketing operations leaders"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-headline">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-headline">
               Headline
-            </label>
-            <input
+            </Label>
+            <Input
               id="case-study-headline"
               value={headline}
               onChange={(event) => {
                 setHeadline(event.target.value);
               }}
               placeholder="Acme cuts churn by 40% in one quarter"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-summary">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-summary">
               Summary
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id="case-study-summary"
               value={summary}
               onChange={(event) => {
                 handleSummaryChange(event.target.value);
               }}
               rows={4}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               placeholder="A high-level synopsis of the case study."
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-background">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-background">
               Background
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id="case-study-background"
               value={background}
               onChange={(event) => {
                 setBackground(event.target.value);
               }}
               rows={4}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               placeholder="Describe the starting point for your customer."
               disabled={isFormDisabled}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="case-study-results">
+            <Label className="text-sm font-medium text-foreground" htmlFor="case-study-results">
               Results
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id="case-study-results"
               value={results}
               onChange={(event) => {
                 setResults(event.target.value);
               }}
               rows={4}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="w-full"
               placeholder="List the measurable impact you delivered."
               disabled={isFormDisabled}
             />
@@ -570,16 +578,20 @@ export function CaseStudyForm({
                 <h3 className="text-sm font-semibold text-foreground">Media attachments</h3>
                 <p className="text-xs text-muted-foreground">Upload assets and choose a hero image.</p>
               </div>
-              <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-primary">
+              <Label
+                htmlFor={assetUploadInputId}
+                className="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-primary"
+              >
                 <span>Upload</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={isUploading || isFormDisabled}
-                />
-              </label>
+              </Label>
+              <Input
+                ref={fileInputRef}
+                id={assetUploadInputId}
+                type="file"
+                className="hidden"
+                onChange={handleUpload}
+                disabled={isUploading || isFormDisabled}
+              />
             </div>
             {uploadError ? <p className="text-xs text-destructive">{uploadError}</p> : null}
             {assetActionError ? <p className="text-xs text-destructive">{assetActionError}</p> : null}
@@ -598,26 +610,28 @@ export function CaseStudyForm({
               <p className="text-xs text-muted-foreground">No files uploaded yet.</p>
             ) : (
               <div className="space-y-2">
-                <label className="text-xs font-medium text-foreground" htmlFor="case-study-hero-asset">
+                <Label className="text-xs font-medium text-foreground" htmlFor="case-study-hero-asset">
                   Hero image
-                </label>
-                <select
-                  id="case-study-hero-asset"
+                </Label>
+                <Select
                   value={heroAssetId ?? ""}
-                  onChange={(event) => {
-                    const value = event.target.value;
+                  onValueChange={(value: string) => {
                     setHeroAssetId(value.length > 0 ? value : null);
                   }}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   disabled={isFormDisabled}
                 >
-                  <option value="">No hero selected</option>
-                  {assets.map((asset) => (
-                    <option key={asset.id} value={asset.id}>
-                      {asset.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger id="case-study-hero-asset" className="w-full">
+                    <SelectValue placeholder="No hero selected" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No hero selected</SelectItem>
+                    {assets.map((asset) => (
+                      <SelectItem key={asset.id} value={asset.id}>
+                        {asset.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <ul className="space-y-1 text-xs text-muted-foreground">
                   {assets.map((asset) => {
                     const isRemoving = removingAssetId === asset.id;
@@ -632,18 +646,20 @@ export function CaseStudyForm({
                             {Math.round(asset.size / 1024)} KB
                           </span>
                         </div>
-                        <button
+                        <Button
                           type="button"
+                          variant="link"
+                          size="sm"
+                          className="px-0 text-destructive"
                           onClick={() => {
                             if (!isRemoving) {
                               handleRemoveAsset(asset.id);
                             }
                           }}
-                          className="text-xs font-medium text-destructive transition hover:underline disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={isRemoving || isFormDisabled}
                         >
                           {isRemoving ? "Removing…" : "Remove"}
-                        </button>
+                        </Button>
                       </li>
                     );
                   })}
@@ -662,8 +678,10 @@ export function CaseStudyForm({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-foreground">Narrative sections</h3>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => {
               setSections((previous) => [
                 ...previous,
@@ -675,10 +693,9 @@ export function CaseStudyForm({
                 },
               ]);
             }}
-            className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
           >
             Add section
-          </button>
+          </Button>
         </div>
         {sections.length === 0 ? (
           <p className="text-sm text-muted-foreground">No sections yet. Add one to begin telling your story.</p>
@@ -690,13 +707,9 @@ export function CaseStudyForm({
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <div className="flex items-center justify-end gap-2">
-        <button
-          type="submit"
-          className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isFormDisabled}
-        >
+        <Button type="submit" disabled={isFormDisabled}>
           {isPending ? "Saving…" : "Save case study"}
-        </button>
+        </Button>
       </div>
     </form>
   );

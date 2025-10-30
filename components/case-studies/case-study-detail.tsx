@@ -12,6 +12,7 @@ import { trpc, useCaseStudyByIdQuery } from "@/lib/trpc/react";
 import { caseStudyDetailSchema } from "@/lib/validators/case-study";
 import { trackCaseStudyViewed } from "@/lib/analytics/events";
 import { CaseStudyDetailContent } from "./case-study-detail-content";
+import { Button } from "@/components/ui/button";
 
 interface CaseStudyDetailProps {
   id: string;
@@ -166,27 +167,22 @@ export function CaseStudyDetail({ id }: CaseStudyDetailProps): ReactElement {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link
-          href="/dashboard/case-studies"
-          className="inline-flex items-center rounded-md border border-input px-3 py-1 text-sm font-medium text-foreground transition hover:bg-muted"
-        >
-          Back to list
-        </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/dashboard/case-studies">Back to list</Link>
+        </Button>
         <div className="flex items-center gap-2">
-          <Link
-            href={`/dashboard/case-studies/${id}/edit`}
-            className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-          >
-            Edit
-          </Link>
-          <button
+          <Button asChild size="sm">
+            <Link href={`/dashboard/case-studies/${id}/edit`}>Edit</Link>
+          </Button>
+          <Button
             type="button"
+            variant="destructive"
+            size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="inline-flex items-center rounded-md border border-destructive px-3 py-1.5 text-sm font-medium text-destructive transition hover:bg-destructive hover:text-destructive-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isDeleting ? "Deleting…" : "Delete"}
-          </button>
+          </Button>
         </div>
       </div>
       {deleteError ? <p className="text-sm text-destructive">{deleteError}</p> : null}

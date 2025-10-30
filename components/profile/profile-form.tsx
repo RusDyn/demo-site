@@ -14,6 +14,9 @@ import {
 import { updateProfileAction, uploadProfileAvatarAction } from "@/app/actions/profile";
 import { trpc } from "@/lib/trpc/react";
 import { profileSchema, type ProfileSummary, type ProfileUpdateInput } from "@/lib/validators/profile";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error && typeof error.message === "string") {
@@ -171,41 +174,45 @@ export function ProfileForm(): ReactElement {
   const previewImage = optimisticProfile.image;
   const avatarDisplayUrl = avatarPreviewUrl ?? resolvePreviewUrl(image);
 
+  const fileInputId = "profile-avatar-upload";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 rounded-md border border-border p-6 shadow-sm">
       <div className="space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-foreground">
+          <Label htmlFor="email" className="text-sm font-medium text-foreground">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="email"
             name="email"
             value={email}
             readOnly
-            className="mt-1 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground shadow-sm"
+            className="mt-1 bg-muted text-muted-foreground"
             placeholder="Email unavailable"
             disabled
           />
         </div>
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-foreground">
+          <Label htmlFor="name" className="text-sm font-medium text-foreground">
             Display name
-          </label>
-          <input
+          </Label>
+          <Input
             id="name"
             name="name"
             value={name}
             onChange={(event) => {
               setName(event.target.value);
             }}
-            className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-1"
             placeholder="Your name"
             disabled={isLoading}
           />
         </div>
         <div>
-          <span className="block text-sm font-medium text-foreground">Avatar</span>
+          <Label htmlFor={fileInputId} className="text-sm font-medium text-foreground">
+            Avatar
+          </Label>
           <div className="mt-2 flex flex-wrap items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
               {avatarDisplayUrl ? (
@@ -221,25 +228,31 @@ export function ProfileForm(): ReactElement {
               )}
             </div>
             <div className="flex flex-col gap-2 text-sm">
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted">
+              <Label
+                htmlFor={fileInputId}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
+              >
                 <span>{isUploading ? "Uploading…" : "Upload new"}</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={handleAvatarUpload}
-                  disabled={isLoading}
-                />
-              </label>
-              <button
+              </Label>
+              <Input
+                ref={fileInputRef}
+                id={fileInputId}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={handleAvatarUpload}
+                disabled={isLoading}
+              />
+              <Button
                 type="button"
-                className="w-max text-xs text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                variant="link"
+                size="sm"
+                className="w-max px-0"
                 onClick={handleRemoveAvatar}
                 disabled={isLoading || (!image && !avatarPreviewUrl)}
               >
                 Remove avatar
-              </button>
+              </Button>
               {uploadError ? <p className="text-xs text-destructive">{uploadError}</p> : null}
             </div>
           </div>
@@ -269,13 +282,9 @@ export function ProfileForm(): ReactElement {
       </div>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <div className="flex items-center justify-end gap-2">
-        <button
-          type="submit"
-          className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={isLoading}
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? "Saving…" : "Save changes"}
-        </button>
+        </Button>
       </div>
     </form>
   );
