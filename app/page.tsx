@@ -9,6 +9,7 @@ import { auth, signIn, signOut } from "@/lib/auth";
 import { HeroAnimatedShell, HeroMotionItem } from "@/components/hero/animated-hero";
 import { FeatureGrid } from "@/components/landing/feature-grid";
 import { DemoHighlight } from "@/components/landing/demo-highlight";
+import { VideoSpotlight } from "@/components/landing/video-spotlight";
 import { DashboardHandOffSection } from "@/components/dashboard/dashboard-hand-off-section";
 import { TechStackMarquee } from "@/components/landing/tech-stack-marquee";
 
@@ -130,6 +131,27 @@ export default async function Home(): Promise<ReactElement> {
 
       <section className="rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/30 via-card/90 to-background/80 p-8 shadow-md backdrop-blur">
         <DemoHighlight />
+      </section>
+
+      <section className="space-y-6 rounded-3xl border border-border/70 bg-gradient-to-br from-card/80 via-secondary/40 to-primary/20 p-8 shadow-lg backdrop-blur">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold text-foreground">Explore the Supabase Auth workflow</h2>
+          <p className="text-base text-muted-foreground">
+            Watch how the Supabase team wires Auth Helpers into a Next.js App Router project—exactly the flow this starter builds upon.
+          </p>
+        </div>
+        <VideoSpotlight className="mx-auto max-w-4xl" />
+        <p className="text-xs text-muted-foreground">
+          Video: {" "}
+          <Link
+            href="https://www.youtube.com/watch?v=pqn9D6r9F7o"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-dotted underline-offset-2"
+          >
+            Supabase — "Supabase Auth Helpers for Next.js App Router"
+          </Link>
+        </p>
       </section>
 
       <FeatureGrid className="gap-6" />
