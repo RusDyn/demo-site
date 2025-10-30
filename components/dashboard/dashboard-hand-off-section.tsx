@@ -1,7 +1,10 @@
 "use client";
 
 import { m, useReducedMotion } from "framer-motion";
+import { Info } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface DashboardHandOffSectionProps {
   children: ReactNode;
@@ -27,15 +30,17 @@ export function DashboardHandOffSection({
 
   return (
     <m.section {...createMotionProps()} className="space-y-6">
-      <m.div
-        {...createMotionProps(0.05)}
-        className="rounded-lg border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground"
-      >
-        <p className="font-medium text-foreground">Draft hand-off guidance</p>
-        <p className="mt-1">
-          Capture your in-progress profile updates and case study drafts here, then use the dashboard to hand off polished work
-          and monitor how each story performs with teammates.
-        </p>
+      <m.div {...createMotionProps(0.05)}>
+        <Alert variant="info" className="border-dashed border-primary/40 bg-primary/10">
+          <Info className="h-5 w-5" aria-hidden="true" />
+          <div>
+            <AlertTitle>Draft hand-off guidance</AlertTitle>
+            <AlertDescription className="text-sm">
+              Capture your in-progress profile updates and case study drafts here, then use the dashboard to hand off polished
+              work and monitor how each story performs with teammates.
+            </AlertDescription>
+          </div>
+        </Alert>
       </m.div>
       <m.div {...createMotionProps(0.1)} className="space-y-6">
         {children}

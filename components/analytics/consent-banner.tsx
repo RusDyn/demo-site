@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactElement } from "react";
 
 import { useAnalyticsConsentControls } from "./use-analytics-consent-controls";
+import { Button } from "@/components/ui/button";
 
 function formatStatus(consent: "granted" | "denied" | null): { heading: string; description: string } {
   if (consent === "granted") {
@@ -40,26 +41,27 @@ export function AnalyticsConsentBanner(): ReactElement | null {
           <p className="mt-2 text-sm text-muted-foreground">{status.description}</p>
           {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              className="flex-1"
               onClick={() => {
                 applyDecision("denied");
               }}
               disabled={isPending}
-              className="inline-flex flex-1 items-center justify-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
             >
               Decline
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              className="flex-1"
               onClick={() => {
                 applyDecision("granted");
               }}
               disabled={isPending}
-              className="inline-flex flex-1 items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Allow analytics
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -71,17 +73,18 @@ export function AnalyticsConsentBanner(): ReactElement | null {
 
   return (
     <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        className="border border-input bg-background/95 px-3 py-1.5 text-sm shadow-lg hover:bg-muted"
         aria-expanded={isManagerOpen}
         onClick={() => {
           setIsManagerOpen((current) => !current);
         }}
-        className="inline-flex items-center rounded-md border border-input bg-background/95 px-3 py-1.5 text-sm font-medium text-foreground shadow-lg transition hover:bg-muted"
       >
         Manage preferences
         <span className="sr-only"> ({label})</span>
-      </button>
+      </Button>
       {isManagerOpen ? (
         <div className="w-80 rounded-lg border border-border bg-background/95 p-4 shadow-lg backdrop-blur">
           <div className="flex items-start justify-between gap-3">
@@ -89,38 +92,41 @@ export function AnalyticsConsentBanner(): ReactElement | null {
               <p className="text-sm font-semibold text-foreground">{status.heading}</p>
               <p className="mt-1 text-xs text-muted-foreground">{status.description}</p>
             </div>
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
               onClick={() => {
                 setIsManagerOpen(false);
               }}
-              className="text-xs font-medium text-muted-foreground transition hover:text-foreground"
             >
               Close
-            </button>
+            </Button>
           </div>
           {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              className="flex-1"
               onClick={() => {
                 applyDecision("denied");
               }}
               disabled={isPending || consent === "denied"}
-              className="inline-flex flex-1 items-center justify-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
             >
               Disable analytics
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              className="flex-1"
               onClick={() => {
                 applyDecision("granted");
               }}
               disabled={isPending || consent === "granted"}
-              className="inline-flex flex-1 items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Allow analytics
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

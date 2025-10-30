@@ -3,6 +3,8 @@
 import { type ReactElement } from "react";
 
 import { useAnalyticsConsentControls } from "./use-analytics-consent-controls";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function AnalyticsConsentPreferences(): ReactElement {
   const { consent, error, isPending, applyDecision } = useAnalyticsConsentControls();
@@ -28,32 +30,33 @@ export function AnalyticsConsentPreferences(): ReactElement {
           Decide whether we can capture anonymous usage trends to inform improvements.
         </p>
       </header>
-      <div className="rounded-md border border-dashed border-muted-foreground/40 p-4">
-        <p className="text-sm font-medium text-foreground">{heading}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
+      <Alert variant="info" className="border-dashed border-primary/40 bg-primary/10">
+        <AlertTitle className="text-sm font-semibold text-foreground">{heading}</AlertTitle>
+        <AlertDescription className="mt-1 text-sm text-muted-foreground">{description}</AlertDescription>
+      </Alert>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
       <div className="flex flex-wrap gap-3">
-        <button
+        <Button
           type="button"
+          variant="outline"
+          className="flex-1"
           onClick={() => {
             applyDecision("denied");
           }}
           disabled={isPending || consent === "denied"}
-          className="inline-flex flex-1 items-center justify-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
         >
           Disable analytics
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          className="flex-1"
           onClick={() => {
             applyDecision("granted");
           }}
           disabled={isPending || consent === "granted"}
-          className="inline-flex flex-1 items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Allow analytics
-        </button>
+        </Button>
       </div>
     </section>
   );

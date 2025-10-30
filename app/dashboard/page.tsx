@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { CaseStudyEditorShell } from "@/components/case-studies/case-study-editor-form";
 import { CaseStudyList } from "@/components/case-studies/case-study-list";
 import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage(): Promise<ReactElement> {
   const session = await auth();
@@ -28,12 +29,9 @@ export default async function DashboardPage(): Promise<ReactElement> {
               <h3 className="text-lg font-medium text-foreground">Recent case studies</h3>
               <p className="text-sm text-muted-foreground">Jump into an existing case study to continue editing.</p>
             </div>
-            <Link
-              href="/dashboard/case-studies"
-              className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
-            >
-              Manage all
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/case-studies">Manage all</Link>
+            </Button>
           </div>
           <div className="rounded-lg border border-border p-6 shadow-sm">
             <CaseStudyList />

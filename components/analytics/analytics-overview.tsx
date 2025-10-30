@@ -7,6 +7,7 @@ import type {
   AnalyticsEventSummary,
 } from "@/lib/analytics/posthog-server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAnalyticsCohortsQuery, useAnalyticsTopEventsQuery } from "@/lib/trpc/react";
 
 function formatRelativeTime(timestamp: string | null | undefined): string {
@@ -75,26 +76,32 @@ function CohortsCard({ cohorts }: { cohorts: AnalyticsCohortSummary[] }): ReactE
   }
 
   return (
-    <table className="min-w-full divide-y divide-border text-left text-sm">
-      <thead>
-        <tr className="text-muted-foreground">
-          <th className="px-0 py-2 font-medium">Cohort</th>
-          <th className="px-0 py-2 font-medium">Members</th>
-          <th className="px-0 py-2 font-medium">Created</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-border">
+    <Table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="px-0 text-sm font-medium text-muted-foreground normal-case tracking-normal">Cohort</TableHead>
+          <TableHead className="px-0 text-sm font-medium text-muted-foreground normal-case tracking-normal">
+            Members
+          </TableHead>
+          <TableHead className="px-0 text-sm font-medium text-muted-foreground normal-case tracking-normal">
+            Created
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {cohorts.map((cohort) => (
-          <tr key={cohort.id} className="text-foreground">
-            <td className="px-0 py-2">
+          <TableRow key={cohort.id} className="text-foreground">
+            <TableCell className="px-0">
               <span className="font-medium">{cohort.name}</span>
-            </td>
-            <td className="px-0 py-2">{cohort.count}</td>
-            <td className="px-0 py-2 text-muted-foreground">{formatRelativeTime(cohort.createdAt ?? null)}</td>
-          </tr>
+            </TableCell>
+            <TableCell className="px-0">{cohort.count}</TableCell>
+            <TableCell className="px-0 text-muted-foreground">
+              {formatRelativeTime(cohort.createdAt ?? null)}
+            </TableCell>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }
 

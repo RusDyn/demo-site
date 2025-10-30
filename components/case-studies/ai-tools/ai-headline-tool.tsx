@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 
 import { useAiGeneration } from "./use-ai-generation";
 import type { AiHeadlinePromptInput, AiHeadlineResponse } from "@/lib/validators/ai";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AiHeadlineToolProps {
   topic: string;
@@ -96,14 +99,9 @@ export function AiHeadlineTool({
             Draft a compelling headline and backup options editors can choose from.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={handleGenerate}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isPending}
-        >
+        <Button type="button" onClick={handleGenerate} disabled={isPending}>
           {isPending ? "Generating…" : "Generate headlines"}
-        </button>
+        </Button>
       </div>
 
       {localError ? <p className="text-sm text-destructive">{localError}</p> : null}
@@ -111,16 +109,16 @@ export function AiHeadlineTool({
 
       <div className="space-y-3">
         <div className="space-y-2">
-          <label className="text-xs font-medium uppercase text-muted-foreground" htmlFor="headline-primary">
+          <Label className="text-xs font-medium uppercase text-muted-foreground" htmlFor="headline-primary">
             Primary headline
-          </label>
-          <input
+          </Label>
+          <Input
             id="headline-primary"
             value={primaryHeadline}
             onChange={(event) => {
               setPrimaryHeadline(event.target.value);
             }}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full"
             placeholder="AI headline will appear here"
           />
         </div>
@@ -133,13 +131,13 @@ export function AiHeadlineTool({
               </p>
             ) : (
               alternatives.map((value, index) => (
-                <input
+                <Input
                   key={`alt-${index}`}
                   value={value}
                   onChange={(event) => {
                     updateAlternative(index, event.target.value);
                   }}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="w-full"
                   placeholder="Additional headline"
                 />
               ))
@@ -149,25 +147,20 @@ export function AiHeadlineTool({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => {
             reset();
             setPrimaryHeadline("");
             setAlternatives([]);
           }}
-          className="rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
         >
           Clear
-        </button>
-        <button
-          type="button"
-          onClick={handleAccept}
-          disabled={!primaryHeadline.trim()}
-          className="rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </Button>
+        <Button type="button" variant="secondary" onClick={handleAccept} disabled={!primaryHeadline.trim()}>
           Use headline
-        </button>
+        </Button>
       </div>
     </div>
   );

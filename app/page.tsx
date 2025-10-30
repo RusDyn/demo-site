@@ -12,6 +12,7 @@ import { DemoHighlight } from "@/components/landing/demo-highlight";
 import { VideoSpotlight } from "@/components/landing/video-spotlight";
 import { DashboardHandOffSection } from "@/components/dashboard/dashboard-hand-off-section";
 import { TechStackMarquee } from "@/components/landing/tech-stack-marquee";
+import { Button } from "@/components/ui/button";
 
 async function githubSignIn(): Promise<void> {
   "use server";
@@ -32,27 +33,18 @@ function renderSignInActions(): ReactNode {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <form action={githubSignIn} className="flex-1">
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-        >
+        <Button type="submit" className="w-full">
           Continue with GitHub
-        </button>
+        </Button>
       </form>
       <form action={googleSignIn} className="flex-1">
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/90"
-        >
+        <Button type="submit" variant="secondary" className="w-full">
           Continue with Google
-        </button>
+        </Button>
       </form>
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center justify-center rounded-md border border-transparent bg-muted px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted/80"
-      >
-        Explore the dashboard
-      </Link>
+      <Button asChild variant="outline" className="bg-muted hover:bg-muted/80">
+        <Link href="/dashboard">Explore the dashboard</Link>
+      </Button>
     </div>
   );
 }
@@ -86,18 +78,12 @@ export default async function Home(): Promise<ReactElement> {
             <HeroMotionItem className="mt-6">
               {session?.user ? (
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-                  >
-                    Open your dashboard
-                  </Link>
-                  <Link
-                    href="/case-studies"
-                    className="inline-flex items-center justify-center rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
-                  >
-                    Browse customer stories
-                  </Link>
+                  <Button asChild>
+                    <Link href="/dashboard">Open your dashboard</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/case-studies">Browse customer stories</Link>
+                  </Button>
                 </div>
               ) : (
                 renderSignInActions()
@@ -174,23 +160,17 @@ export default async function Home(): Promise<ReactElement> {
               <p>User role: {role}</p>
             </div>
             <form action={signOutAction}>
-              <button
-                type="submit"
-                className="inline-flex items-center rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/90"
-              >
+              <Button type="submit" variant="secondary">
                 Sign out
-              </button>
+              </Button>
             </form>
           </div>
         ) : (
           <div className="space-y-3">
             {renderSignInActions()}
-            <Link
-              href="/api/auth/signin"
-              className="inline-flex items-center justify-center rounded-md border border-dashed border-input px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
-            >
-              More sign-in options
-            </Link>
+            <Button asChild variant="outline" className="border-dashed">
+              <Link href="/api/auth/signin">More sign-in options</Link>
+            </Button>
           </div>
         )}
       </section>
@@ -203,12 +183,9 @@ export default async function Home(): Promise<ReactElement> {
           </div>
           <CaseStudyEditor />
           <div className="flex justify-end">
-            <Link
-              href="/dashboard/case-studies"
-              className="inline-flex items-center rounded-md border border-input px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted"
-            >
-              Open case study workspace
-            </Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/case-studies">Open case study workspace</Link>
+            </Button>
           </div>
         </DashboardHandOffSection>
       ) : (

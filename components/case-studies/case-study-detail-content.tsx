@@ -1,6 +1,7 @@
 import { type ReactElement, type ReactNode } from "react";
 
 import { type CaseStudyDetail } from "@/lib/validators/case-study";
+import { Badge } from "@/components/ui/badge";
 
 export interface CaseStudyDetailContentProps {
   readonly caseStudy: CaseStudyDetail;
@@ -51,9 +52,7 @@ export function CaseStudyDetailContent({
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2 text-foreground">
                     <span className="font-medium">{asset.name}</span>
-                    {caseStudy.heroAssetId === asset.id ? (
-                      <span className="rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">Hero</span>
-                    ) : null}
+                    {caseStudy.heroAssetId === asset.id ? <Badge variant="secondary">Hero</Badge> : null}
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {asset.mimeType} • {Math.round(asset.size / 1024)} KB
